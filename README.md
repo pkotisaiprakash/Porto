@@ -209,7 +209,7 @@ git commit -m "Initial commit"
 ### Step 6: Link to GitHub Repository
 
 ```bash
-git remote add origin https://github.com/YOUR_USERNAME/portfolio-builder.git
+git remote add origin https://github.com/pkotisaiprakash/Porto.git
 ```
 
 ### Step 7: Push to GitHub
