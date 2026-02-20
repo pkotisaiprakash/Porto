@@ -1,0 +1,269 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* A4 Resume Paper Styles */
+@page {
+  size: A4;
+  margin: 0;
+}
+
+.resume-a4 {
+  width: 210mm;
+  min-width: 210mm;
+  height: 297mm;
+  min-height: 297mm;
+  background: white;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* Responsive A4 scaling for different screen sizes */
+@media (max-width: 640px) {
+  .resume-a4 {
+    transform: scale(0.25) !important;
+    transform-origin: top center;
+    margin-bottom: -70% !important;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 768px) {
+  .resume-a4 {
+    transform: scale(0.35) !important;
+    transform-origin: top center;
+    margin-bottom: -60% !important;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .resume-a4 {
+    transform: scale(0.45) !important;
+    transform-origin: top center;
+    margin-bottom: -55% !important;
+  }
+}
+
+@media (min-width: 1025px) and (max-width: 1280px) {
+  .resume-a4 {
+    transform: scale(0.55) !important;
+    transform-origin: top center;
+    margin-bottom: -45% !important;
+  }
+}
+
+@media (min-width: 1281px) {
+  .resume-a4 {
+    transform: scale(0.65) !important;
+    transform-origin: top center;
+    margin-bottom: -35% !important;
+  }
+}
+
+/* Template Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideLeft {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideRight {
+  from { opacity: 0; transform: translateX(-30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* Animation Classes */
+.animate-fadeIn {
+  animation: fadeIn 0.6s ease-out forwards;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.6s ease-out forwards;
+}
+
+.animate-slideDown {
+  animation: slideDown 0.6s ease-out forwards;
+}
+
+.animate-slideLeft {
+  animation: slideLeft 0.6s ease-out forwards;
+}
+
+.animate-slideRight {
+  animation: slideRight 0.6s ease-out forwards;
+}
+
+.animate-scaleIn {
+  animation: scaleIn 0.5s ease-out forwards;
+}
+
+.animate-pulse {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.animate-bounce {
+  animation: bounce 1s ease-in-out infinite;
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 8s linear infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(6, 182, 212, 0.5); }
+  50% { box-shadow: 0 0 40px rgba(6, 182, 212, 0.8); }
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite;
+}
+
+/* Template specific animations */
+.template-minimal {
+  animation: fadeIn 0.8s ease-out;
+}
+
+.template-minimal header {
+  animation: slideDown 0.6s ease-out;
+}
+
+.template-modern {
+  animation: fadeIn 0.8s ease-out;
+}
+
+.template-modern header {
+  animation: slideUp 0.6s ease-out;
+}
+
+.template-creative {
+  animation: fadeIn 0.8s ease-out;
+}
+
+.template-professional {
+  animation: fadeIn 0.8s ease-out;
+}
+
+/* Staggered animations for grid items */
+.template-modern .grid > *:nth-child(1) { animation-delay: 0.1s; }
+.template-modern .grid > *:nth-child(2) { animation-delay: 0.2s; }
+.template-modern .grid > *:nth-child(3) { animation-delay: 0.3s; }
+.template-modern .grid > *:nth-child(4) { animation-delay: 0.4s; }
+
+.template-creative .grid > *:nth-child(1) { animation-delay: 0.1s; }
+.template-creative .grid > *:nth-child(2) { animation-delay: 0.2s; }
+
+/* Hover effects */
+.template-modern .hover\\:scale-105:hover {
+  transform: scale(1.05);
+}
+
+.template-creative .hover\\:scale-110:hover {
+  transform: scale(1.1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar - light theme */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+
+/* Dark theme scrollbar overrides */
+.dark ::-webkit-scrollbar-track {
+  background: #2d2d2d;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #4b5563;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+/* Smooth transitions */
+a, button {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Firefox scrollbar colors */
+body {
+  scrollbar-color: #c1c1c1 #f1f1f1;
+}
+.dark body {
+  scrollbar-color: #4b5563 #2d2d2d;
+}
+
+/* Form focus states */
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  /* use box-shadow instead of invalid `ring` properties */
+  box-shadow: 0 0 0 2px #3b82f6;
+}
