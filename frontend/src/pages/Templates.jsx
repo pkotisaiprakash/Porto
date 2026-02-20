@@ -49,17 +49,8 @@ const Templates = () => {
   const refreshTemplates = async () => {
     setRefreshing(true);
     try {
-      // Call reseed endpoint
-      const response = await fetch(`${window.location.protocol}//${window.location.hostname}:5000/api/admin/reseed-templates`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      const data = await response.json();
-      if (data.success) {
-        // Fetch templates again
+      const response = await templateAPI.reseed();
+      if (response.data.success) {
         await fetchTemplates();
       }
     } catch (err) {

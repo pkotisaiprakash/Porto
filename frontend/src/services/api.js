@@ -1,17 +1,21 @@
 import axios from 'axios';
 
-// Dynamic API URL - uses current host for mobile compatibility
-const getApiUrl = () => {
-  const { protocol, hostname } = window.location;
-  // Use the current host's IP/hostname with port 5000
-  return `${protocol}//${hostname}:5000/api`;
-};
+// Read baseURL from Vite environment variable so production builds
+// point at the correct backend service.  VITE_API_URL should include the
+// `/api` segment (e.g. https://porto-okmw.onrender.com/api) but we
+// normalize in case the trailing `/api` is accidentally omitted.
+let API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+if (!API_URL.endsWith('/api')) {
+  API_URL = API_URL.replace(/\/+$/, '') + '/api';
+}
 
-const API_URL = getApiUrl();
+// helpful debug information when the app boots
+console.log('API URL:', API_URL);
 
 // Create axios instance
 const api = axios.create({
   baseURL: API_URL,
+  withCredentials: true,            // keep cookie/session support if needed
   headers: {
     'Content-Type': 'application/json'
   }
@@ -78,7 +82,9 @@ export const templateAPI = {
   create: (data) => api.post('/templates', data),
   update: (id, data) => api.put(`/templates/${id}`, data),
   delete: (id) => api.delete(`/templates/${id}`),
-  toggle: (id) => api.put(`/templates/${id}/toggle`)
+  toggle: (id) => api.put(`/templates/${id}/toggle`),
+  // admin helper, used in templates page to load new examples
+  reseed: () => api.post('/admin/reseed-templates')
 };
 
 // Portfolio API

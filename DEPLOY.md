@@ -205,13 +205,16 @@ VITE_API_URL=https://your-backend-service.onrender.com/api
 
 After deploying the backend, update the frontend to point to your production API:
 
-1. If using Vercel/Netlify: Add `VITE_API_URL` in the dashboard
-2. Or modify `frontend/src/services/api.js`:
+1. If using Vercel/Netlify: Add `VITE_API_URL` in the dashboard (e.g. `https://porto-okmw.onrender.com/api`)
+2. The frontend reads this variable at build time; the code automatically appends `/api` if you forget it. See `frontend/src/services/api.js` for details.
 
 ```javascript
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// normalization ensures there is always a trailing `/api` segment:
+let API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+if (!API_URL.endsWith('/api')) {
+  API_URL = API_URL.replace(/\/+$/, '') + '/api';
+}
 ```
-
 ---
 
 ## Common Issues

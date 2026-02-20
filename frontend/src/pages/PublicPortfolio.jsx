@@ -2,12 +2,8 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import TemplateRenderer from '../components/TemplateRenderer';
 import useDocumentTitle from '../hooks/useDocumentTitle';
+import { portfolioAPI } from '../services/api';
 
-// Dynamic API URL for mobile compatibility
-const getApiUrl = () => {
-  const { protocol, hostname } = window.location;
-  return `${protocol}//${hostname}:5000`;
-};
 
 const PublicPortfolio = () => {
   const { username } = useParams();
@@ -25,13 +21,11 @@ const PublicPortfolio = () => {
   const fetchPortfolio = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${getApiUrl()}/api/portfolio/${username}`);
-      const data = await response.json();
-
-      if (data.success) {
-        setPortfolio(data.portfolio);
+      const response = await portfolioAPI.getPublic(username);
+      if (response.data.success) {
+        setPortfolio(response.data.portfolio);
       } else {
-        setError(data.message || 'Portfolio not found');
+        setError(response.data.message || 'Portfolio not found');
       }
     } catch (err) {
       setError('Failed to load portfolio');

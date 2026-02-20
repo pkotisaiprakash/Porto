@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import useDocumentTitle from '../hooks/useDocumentTitle';
+import { templateAPI } from '../services/api';
 
 const Home = () => {
   const { isAuthenticated } = useAuth();
@@ -17,10 +18,9 @@ const Home = () => {
 
   const fetchTemplates = async () => {
     try {
-      const response = await fetch(`${window.location.protocol}//${window.location.hostname}:5000/api/templates`);
-      const data = await response.json();
-      if (data.success) {
-        setTemplates(data.templates);
+      const response = await templateAPI.getAll();
+      if (response.data.success) {
+        setTemplates(response.data.templates);
       }
     } catch (err) {
       console.error('Error fetching templates:', err);
