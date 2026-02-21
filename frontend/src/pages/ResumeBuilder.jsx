@@ -240,26 +240,120 @@ const ResumeBuilder = () => {
     setIsGenerating(true);
     try {
       const element = document.getElementById('resume-preview');
+      
+      // Find the parent container
+      const parentElement = element.parentElement;
+      const originalParentStyle = parentElement.style.cssText;
+      
+      // Store original inline styles to restore later
+      const originalTransform = element.style.transform;
+      const originalWidth = element.style.width;
+      const originalMinWidth = element.style.minWidth;
+      const originalMaxWidth = element.style.maxWidth;
+      const originalHeight = element.style.height;
+      const originalMinHeight = element.style.minHeight;
+      const originalMarginBottom = element.style.marginBottom;
+      
+      // Reset parent container styles to not interfere with layout
+      parentElement.style.display = 'block';
+      parentElement.style.overflow = 'visible';
+      
+      // Remove transform and reset dimensions for PDF generation
+      element.style.transform = 'none';
+      element.style.maxWidth = 'none';
+      element.style.width = 'auto';
+      element.style.minWidth = 'auto';
+      element.style.height = 'auto';
+      element.style.minHeight = 'auto';
+      element.style.marginBottom = '0';
+      
+      // Handle dark mode for PDF generation - force light mode
+      const htmlElement = document.documentElement;
+      const hadDarkClass = htmlElement.classList.contains('dark');
+      htmlElement.classList.remove('dark');
+      
+      // Force light mode styles on the resume preview element
+      element.classList.add('pdf-mode');
+      
+      // Wait for styles to apply and layout to recalculate
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
       const canvas = await html2canvas(element, {
         scale: 2,
         useCORS: true,
         logging: false,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        onclone: (clonedDoc) => {
+          // Ensure the cloned element has correct styles
+          const clonedElement = clonedDoc.getElementById('resume-preview');
+          if (clonedElement) {
+            // Reset parent container styles in cloned document
+            const clonedParent = clonedElement.parentElement;
+            if (clonedParent) {
+              clonedParent.style.display = 'block';
+              clonedParent.style.overflow = 'visible';
+            }
+            
+            clonedElement.style.transform = 'none';
+            clonedElement.style.maxWidth = 'none';
+            clonedElement.style.width = 'auto';
+            clonedElement.style.minWidth = 'auto';
+            clonedElement.style.height = 'auto';
+            clonedElement.style.minHeight = 'auto';
+            clonedElement.style.marginBottom = '0';
+          }
+          // Remove dark mode from cloned document
+          clonedDoc.documentElement.classList.remove('dark');
+        }
       });
       
+      // Restore original styles
+      element.style.transform = originalTransform;
+      element.style.width = originalWidth;
+      element.style.maxWidth = originalMaxWidth;
+      element.style.minWidth = originalMinWidth;
+      element.style.height = originalHeight;
+      element.style.minHeight = originalMinHeight;
+      element.style.marginBottom = originalMarginBottom;
+      element.classList.remove('pdf-mode');
+      
+      // Restore parent styles
+      parentElement.style.cssText = originalParentStyle;
+      
+      // Restore dark mode if it was present
+      if (hadDarkClass) {
+        htmlElement.classList.add('dark');
+      }
+      
+      // Create PDF with A4 size
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('p', 'mm', 'a4');
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
       
+      // Add margins (10mm on each side)
+      const marginLeft = 10;
+      const marginRight = 10;
+      const marginTop = 10;
+      const marginBottom = 10;
+      
+      const availableWidth = pdfWidth - marginLeft - marginRight;
+      const availableHeight = pdfHeight - marginTop - marginBottom;
+      
+      // Calculate dimensions to fit within margins while maintaining aspect ratio
       const imgWidth = canvas.width;
       const imgHeight = canvas.height;
-      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
       
-      const imgX = (pdfWidth - imgWidth * ratio) / 2;
-      const imgY = 0;
+      // Scale to fit within available space
+      const scale = Math.min(availableWidth / imgWidth, availableHeight / imgHeight);
+      const finalWidth = imgWidth * scale;
+      const finalHeight = imgHeight * scale;
       
-      pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
+      // Center the image horizontally within margins
+      const imgX = marginLeft + (availableWidth - finalWidth) / 2;
+      const imgY = marginTop;
+      
+      pdf.addImage(imgData, 'PNG', imgX, imgY, finalWidth, finalHeight);
       pdf.save(`${displayData.fullName || 'resume'}.pdf`);
     } catch (error) {
       console.error('Error generating PDF:', error);
