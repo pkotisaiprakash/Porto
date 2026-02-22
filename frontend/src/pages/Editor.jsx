@@ -404,6 +404,7 @@ const Editor = () => {
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Basic Information</h2>
             
             {/* Resume Upload */}
+            {/*
             <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
               <div className="flex items-center justify-between">
                 <div>
@@ -438,7 +439,12 @@ const Editor = () => {
                   </label>
                 </div>
               </div>
+            </div> */}
+            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <h3 className="font-medium text-blue-800">Resume Upload feature is in testing</h3>
+              <p className="text-sm text-blue-700 mt-1">This feature is currently being tested and is not available at the moment. In the meantime, please fill in your details manually to create your portfolio. We appreciate your understanding and patience!</p> 
             </div>
+            
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>

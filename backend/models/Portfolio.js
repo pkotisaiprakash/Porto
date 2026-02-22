@@ -86,7 +86,9 @@ const portfolioSchema = new mongoose.Schema({
     type: String
   },
   phone: {
-    type: String
+    type: String,
+    trim: true,
+    maxlength: [14, 'Phone number cannot exceed 14 characters']
   },
   email: {
     type: String
