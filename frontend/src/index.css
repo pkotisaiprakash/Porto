@@ -15,26 +15,6 @@
   margin-bottom: 0 !important;
 }
 
-.pdf-mode .text-white,
-.pdf-mode .text-gray-100,
-.pdf-mode .text-gray-200,
-.pdf-mode .text-gray-300,
-.pdf-mode .text-gray-400,
-.pdf-mode .text-gray-500 {
-  color: #1f2937 !important;
-}
-
-.pdf-mode .text-gray-600,
-.pdf-mode .text-gray-700 {
-  color: #374151 !important;
-}
-
-.pdf-mode .bg-gray-700,
-.pdf-mode .bg-gray-800,
-.pdf-mode .bg-gray-900 {
-  background-color: #f3f4f6 !important;
-}
-
 /* A4 Resume Paper Styles */
 @page {
   size: A4;
@@ -44,50 +24,258 @@
 .resume-a4 {
   width: 210mm;
   min-width: 210mm;
-  height: 297mm;
+  height: auto;
   min-height: 297mm;
-  background: white;
+  background: white !important;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  padding: 15mm;
 }
 
-/* Responsive A4 scaling for different screen sizes */
+/* Force light mode colors inside resume preview */
+.resume-a4,
+.resume-a4 * {
+  color: inherit !important;
+  background-color: transparent !important;
+}
+
+/* Ensure text is visible in light mode */
+.resume-a4 .text-white { color: #1f2937 !important; }
+.resume-a4 .text-gray-100 { color: #f3f4f6 !important; }
+.resume-a4 .text-gray-200 { color: #e5e7eb !important; }
+.resume-a4 .text-gray-300 { color: #d1d5db !important; }
+.resume-a4 .text-gray-400 { color: #9ca3af !important; }
+.resume-a4 .text-gray-500 { color: #6b7280 !important; }
+.resume-a4 .text-gray-600 { color: #4b5563 !important; }
+.resume-a4 .text-gray-700 { color: #374151 !important; }
+.resume-a4 .text-gray-800 { color: #1f2937 !important; }
+.resume-a4 .text-gray-900 { color: #111827 !important; }
+
+/* Override dark backgrounds */
+.resume-a4 .bg-gray-800 { background-color: #f3f4f6 !important; }
+.resume-a4 .bg-gray-700 { background-color: #e5e7eb !important; }
+.resume-a4 .bg-gray-900 { background-color: #f3f4f6 !important; }
+.resume-a4 .bg-indigo-900 { background-color: #e0e7ff !important; }
+.resume-a4 .bg-indigo-800 { background-color: #c7d2fe !important; }
+.resume-a4 .bg-blue-600 { background-color: #dbeafe !important; }
+.resume-a4 .bg-blue-700 { background-color: #dbeafe !important; }
+.resume-a4 .bg-emerald-900 { background-color: #d1fae5 !important; }
+.resume-a4 .bg-emerald-800 { background-color: #a7f3d0 !important; }
+.resume-a4 .bg-slate-900 { background-color: #f1f5f9 !important; }
+
+/* Dark mode override */
+.dark .resume-a4,
+.dark .resume-a4 * {
+  background-color: white !important;
+  color: #1f2937 !important;
+}
+
+.dark .resume-a4 .text-white,
+.dark .resume-a4 .text-gray-100,
+.dark .resume-a4 .text-gray-200,
+.dark .resume-a4 .text-gray-300,
+.dark .resume-a4 .text-gray-400,
+.dark .resume-a4 .text-gray-500,
+.dark .resume-a4 .text-gray-600,
+.dark .resume-a4 .text-gray-700,
+.dark .resume-a4 .text-gray-800,
+.dark .resume-a4 .text-gray-900 {
+  color: #1f2937 !important;
+}
+
+.dark .resume-a4 h1,
+.dark .resume-a4 h2,
+.dark .resume-a4 h3 {
+  color: #111827 !important;
+}
+
+.dark .resume-a4 .bg-gray-800,
+.dark .resume-a4 .bg-gray-900,
+.dark .resume-a4 .bg-indigo-900,
+.dark .resume-a4 .bg-indigo-800,
+.dark .resume-a4 .bg-emerald-900,
+.dark .resume-a4 .bg-emerald-800,
+.dark .resume-a4 .bg-slate-900 {
+  background-color: #f3f4f6 !important;
+}
+
+/* PDF mode - ALL colors */
+.pdf-mode {
+  background-color: #ffffff !important;
+}
+
+.pdf-mode * {
+  color: #1f2937 !important;
+  background-color: transparent !important;
+}
+
+/* PDF backgrounds */
+.pdf-mode .bg-gray-800,
+.pdf-mode .bg-gray-900,
+.pdf-mode .bg-indigo-900,
+.pdf-mode .bg-indigo-800,
+.pdf-mode .bg-emerald-900,
+.pdf-mode .bg-emerald-800,
+.pdf-mode .bg-slate-900,
+.pdf-mode .bg-slate-800,
+.pdf-mode .bg-gradient-to-br,
+.pdf-mode .bg-gradient-to-r,
+.pdf-mode .from-blue-600,
+.pdf-mode .to-indigo-700,
+.pdf-mode .from-pink-500,
+.pdf-mode .via-purple-500,
+.pdf-mode .to-indigo-500 {
+  background-color: #f3f4f6 !important;
+}
+
+.pdf-mode .bg-white {
+  background-color: #ffffff !important;
+}
+
+.pdf-mode .bg-gray-50,
+.pdf-mode .bg-gray-100,
+.pdf-mode .bg-gray-200 {
+  background-color: #f9fafb !important;
+}
+
+/* PDF text - ALL colors to dark */
+.pdf-mode .text-white,
+.pdf-mode .text-gray-100,
+.pdf-mode .text-gray-200,
+.pdf-mode .text-gray-300,
+.pdf-mode .text-gray-400,
+.pdf-mode .text-gray-500,
+.pdf-mode .text-gray-600,
+.pdf-mode .text-gray-700,
+.pdf-mode .text-gray-800,
+.pdf-mode .text-gray-900,
+.pdf-mode .text-blue-50,
+.pdf-mode .text-blue-100,
+.pdf-mode .text-blue-200,
+.pdf-mode .text-blue-300,
+.pdf-mode .text-blue-400,
+.pdf-mode .text-blue-500,
+.pdf-mode .text-blue-600,
+.pdf-mode .text-blue-700,
+.pdf-mode .text-blue-800,
+.pdf-mode .text-blue-900,
+.pdf-mode .text-indigo-50,
+.pdf-mode .text-indigo-100,
+.pdf-mode .text-indigo-200,
+.pdf-mode .text-indigo-300,
+.pdf-mode .text-indigo-400,
+.pdf-mode .text-indigo-500,
+.pdf-mode .text-indigo-600,
+.pdf-mode .text-indigo-700,
+.pdf-mode .text-indigo-800,
+.pdf-mode .text-indigo-900,
+.pdf-mode .text-emerald-50,
+.pdf-mode .text-emerald-100,
+.pdf-mode .text-emerald-200,
+.pdf-mode .text-emerald-300,
+.pdf-mode .text-emerald-400,
+.pdf-mode .text-emerald-500,
+.pdf-mode .text-emerald-600,
+.pdf-mode .text-emerald-700,
+.pdf-mode .text-emerald-800,
+.pdf-mode .text-emerald-900,
+.pdf-mode .text-slate-50,
+.pdf-mode .text-slate-100,
+.pdf-mode .text-slate-200,
+.pdf-mode .text-slate-300,
+.pdf-mode .text-slate-400,
+.pdf-mode .text-slate-500,
+.pdf-mode .text-slate-600,
+.pdf-mode .text-slate-700,
+.pdf-mode .text-slate-800,
+.pdf-mode .text-slate-900,
+.pdf-mode .text-green-50,
+.pdf-mode .text-green-100,
+.pdf-mode .text-green-200,
+.pdf-mode .text-green-300,
+.pdf-mode .text-green-400,
+.pdf-mode .text-green-500,
+.pdf-mode .text-green-600,
+.pdf-mode .text-green-700,
+.pdf-mode .text-green-800,
+.pdf-mode .text-green-900,
+.pdf-mode .text-pink-50,
+.pdf-mode .text-pink-100,
+.pdf-mode .text-pink-200,
+.pdf-mode .text-pink-300,
+.pdf-mode .text-pink-400,
+.pdf-mode .text-pink-500,
+.pdf-mode .text-pink-600,
+.pdf-mode .text-pink-700,
+.pdf-mode .text-pink-800,
+.pdf-mode .text-pink-900,
+.pdf-mode .text-purple-50,
+.pdf-mode .text-purple-100,
+.pdf-mode .text-purple-200,
+.pdf-mode .text-purple-300,
+.pdf-mode .text-purple-400,
+.pdf-mode .text-purple-500,
+.pdf-mode .text-purple-600,
+.pdf-mode .text-purple-700,
+.pdf-mode .text-purple-800,
+.pdf-mode .text-purple-900 {
+  color: #1f2937 !important;
+}
+
+/* PDF borders */
+.pdf-mode .border-gray-200,
+.pdf-mode .border-gray-300,
+.pdf-mode .border-gray-400,
+.pdf-mode .border-gray-800,
+.pdf-mode .border-indigo-200,
+.pdf-mode .border-indigo-300,
+.pdf-mode .border-emerald-200,
+.pdf-mode .border-emerald-300 {
+  border-color: #d1d5db !important;
+}
+
+/* Responsive A4 scaling */
+.resume-preview-container {
+  overflow: visible !important;
+}
+
+.resume-preview-wrapper {
+  transform-origin: top left;
+  display: inline-block;
+  min-width: 210mm;
+}
+
 @media (max-width: 640px) {
   .resume-a4 {
     transform: scale(0.25) !important;
-    transform-origin: top center;
-    margin-bottom: -70% !important;
+    transform-origin: top left;
   }
 }
 
 @media (min-width: 641px) and (max-width: 768px) {
   .resume-a4 {
     transform: scale(0.35) !important;
-    transform-origin: top center;
-    margin-bottom: -60% !important;
+    transform-origin: top left;
   }
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
   .resume-a4 {
     transform: scale(0.45) !important;
-    transform-origin: top center;
-    margin-bottom: -55% !important;
+    transform-origin: top left;
   }
 }
 
 @media (min-width: 1025px) and (max-width: 1280px) {
   .resume-a4 {
     transform: scale(0.55) !important;
-    transform-origin: top center;
-    margin-bottom: -45% !important;
+    transform-origin: top left;
   }
 }
 
 @media (min-width: 1281px) {
   .resume-a4 {
     transform: scale(0.65) !important;
-    transform-origin: top center;
-    margin-bottom: -35% !important;
+    transform-origin: top left;
   }
 }
 
@@ -107,170 +295,55 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes slideLeft {
-  from { opacity: 0; transform: translateX(30px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
-@keyframes slideRight {
-  from { opacity: 0; transform: translateX(-30px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
 @keyframes scaleIn {
   from { opacity: 0; transform: scale(0.9); }
   to { opacity: 1; transform: scale(1); }
 }
 
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
-@keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-
-/* Animation Classes */
+/* Animation classes */
 .animate-fadeIn {
-  animation: fadeIn 0.6s ease-out forwards;
+  animation: fadeIn 0.5s ease-out forwards;
 }
 
 .animate-slideUp {
-  animation: slideUp 0.6s ease-out forwards;
+  animation: slideUp 0.5s ease-out forwards;
 }
 
 .animate-slideDown {
-  animation: slideDown 0.6s ease-out forwards;
-}
-
-.animate-slideLeft {
-  animation: slideLeft 0.6s ease-out forwards;
-}
-
-.animate-slideRight {
-  animation: slideRight 0.6s ease-out forwards;
+  animation: slideDown 0.5s ease-out forwards;
 }
 
 .animate-scaleIn {
-  animation: scaleIn 0.5s ease-out forwards;
+  animation: scaleIn 0.3s ease-out forwards;
 }
 
-.animate-pulse {
-  animation: pulse 2s ease-in-out infinite;
-}
+/* Staggered animations */
+.stagger-1 { animation-delay: 0.1s; }
+.stagger-2 { animation-delay: 0.2s; }
+.stagger-3 { animation-delay: 0.3s; }
+.stagger-4 { animation-delay: 0.4s; }
+.stagger-5 { animation-delay: 0.5s; }
 
-.animate-bounce {
-  animation: bounce 1s ease-in-out infinite;
-}
-
-@keyframes spin-slow {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.animate-spin-slow {
-  animation: spin-slow 8s linear infinite;
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-20px); }
-}
-
-.animate-float {
-  animation: float 3s ease-in-out infinite;
-}
-
-@keyframes glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(6, 182, 212, 0.5); }
-  50% { box-shadow: 0 0 40px rgba(6, 182, 212, 0.8); }
-}
-
-.animate-glow {
-  animation: glow 2s ease-in-out infinite;
-}
-
-/* Template specific animations */
-.template-minimal {
-  animation: fadeIn 0.8s ease-out;
-}
-
-.template-minimal header {
-  animation: slideDown 0.6s ease-out;
-}
-
-.template-modern {
-  animation: fadeIn 0.8s ease-out;
-}
-
-.template-modern header {
-  animation: slideUp 0.6s ease-out;
-}
-
-.template-creative {
-  animation: fadeIn 0.8s ease-out;
-}
-
-.template-professional {
-  animation: fadeIn 0.8s ease-out;
-}
-
-/* Staggered animations for grid items */
-.template-modern .grid > *:nth-child(1) { animation-delay: 0.1s; }
-.template-modern .grid > *:nth-child(2) { animation-delay: 0.2s; }
-.template-modern .grid > *:nth-child(3) { animation-delay: 0.3s; }
-.template-modern .grid > *:nth-child(4) { animation-delay: 0.4s; }
-
-.template-creative .grid > *:nth-child(1) { animation-delay: 0.1s; }
-.template-creative .grid > *:nth-child(2) { animation-delay: 0.2s; }
-
-/* Hover effects */
-.template-modern .hover\\:scale-105:hover {
-  transform: scale(1.05);
-}
-
-.template-creative .hover\\:scale-110:hover {
-  transform: scale(1.1);
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: 'Inter', system-ui, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* Custom scrollbar - light theme */
+/* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+  background: #4b5563;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a1a1a1;
+  background: #6b7280;
 }
 
-/* Dark theme scrollbar overrides */
-.dark ::-webkit-scrollbar-track {
-  background: #2d2d2d;
-}
-
+/* Dark mode scrollbar */
 .dark ::-webkit-scrollbar-thumb {
   background: #4b5563;
 }
@@ -279,22 +352,37 @@ body {
   background: #6b7280;
 }
 
-/* Smooth transitions */
-a, button {
-  transition: all 0.2s ease-in-out;
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
 }
 
-/* Firefox scrollbar colors */
-body {
-  scrollbar-color: #c1c1c1 #f1f1f1;
-}
-.dark body {
-  scrollbar-color: #4b5563 #2d2d2d;
-}
-
-/* Form focus states */
-input:focus, textarea:focus, select:focus {
+/* Focus styles */
+*:focus {
   outline: none;
-  /* use box-shadow instead of invalid `ring` properties */
-  box-shadow: 0 0 0 2px #3b82f6;
+}
+
+*:focus-visible {
+  outline: 2px solid #06b6d4;
+  outline-offset: 2px;
+}
+
+/* Selection styles */
+::selection {
+  background: #06b6d4;
+  color: white;
+}
+
+.dark ::selection {
+  background: #0891b2;
+}
+
+/* Gradient text utility */
+.gradient-text {
+  background: linear-gradient(to right, #06b6d4, #8b5cf6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }

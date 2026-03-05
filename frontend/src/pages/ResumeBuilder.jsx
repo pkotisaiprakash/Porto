@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { jsPDF } from 'jspdf';
-import html2canvas from 'html2canvas';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import useDocumentTitle from '../hooks/useDocumentTitle';
@@ -235,126 +234,323 @@ const ResumeBuilder = () => {
     }));
   };
   
-  // Generate PDF
+  // Generate PDF using jsPDF native methods - text-based, smaller file size
   const generatePDF = async () => {
     setIsGenerating(true);
     try {
-      const element = document.getElementById('resume-preview');
+      const data = displayData;
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 15;
+      const contentWidth = pageWidth - (margin * 2);
+      let y = margin;
       
-      // Find the parent container
-      const parentElement = element.parentElement;
-      const originalParentStyle = parentElement.style.cssText;
-      
-      // Store original inline styles to restore later
-      const originalTransform = element.style.transform;
-      const originalWidth = element.style.width;
-      const originalMinWidth = element.style.minWidth;
-      const originalMaxWidth = element.style.maxWidth;
-      const originalHeight = element.style.height;
-      const originalMinHeight = element.style.minHeight;
-      const originalMarginBottom = element.style.marginBottom;
-      
-      // Reset parent container styles to not interfere with layout
-      parentElement.style.display = 'block';
-      parentElement.style.overflow = 'visible';
-      
-      // Remove transform and reset dimensions for PDF generation
-      element.style.transform = 'none';
-      element.style.maxWidth = 'none';
-      element.style.width = 'auto';
-      element.style.minWidth = 'auto';
-      element.style.height = 'auto';
-      element.style.minHeight = 'auto';
-      element.style.marginBottom = '0';
-      
-      // Handle dark mode for PDF generation - force light mode
-      const htmlElement = document.documentElement;
-      const hadDarkClass = htmlElement.classList.contains('dark');
-      htmlElement.classList.remove('dark');
-      
-      // Force light mode styles on the resume preview element
-      element.classList.add('pdf-mode');
-      
-      // Wait for styles to apply and layout to recalculate
-      await new Promise(resolve => setTimeout(resolve, 200));
-      
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#ffffff',
-        onclone: (clonedDoc) => {
-          // Ensure the cloned element has correct styles
-          const clonedElement = clonedDoc.getElementById('resume-preview');
-          if (clonedElement) {
-            // Reset parent container styles in cloned document
-            const clonedParent = clonedElement.parentElement;
-            if (clonedParent) {
-              clonedParent.style.display = 'block';
-              clonedParent.style.overflow = 'visible';
-            }
-            
-            clonedElement.style.transform = 'none';
-            clonedElement.style.maxWidth = 'none';
-            clonedElement.style.width = 'auto';
-            clonedElement.style.minWidth = 'auto';
-            clonedElement.style.height = 'auto';
-            clonedElement.style.minHeight = 'auto';
-            clonedElement.style.marginBottom = '0';
-          }
-          // Remove dark mode from cloned document
-          clonedDoc.documentElement.classList.remove('dark');
+      // Helper function to add a new page if needed
+      const checkNewPage = (height) => {
+        if (y + height > pageHeight - margin) {
+          pdf.addPage();
+          y = margin;
+          return true;
         }
-      });
+        return false;
+      };
       
-      // Restore original styles
-      element.style.transform = originalTransform;
-      element.style.width = originalWidth;
-      element.style.maxWidth = originalMaxWidth;
-      element.style.minWidth = originalMinWidth;
-      element.style.height = originalHeight;
-      element.style.minHeight = originalMinHeight;
-      element.style.marginBottom = originalMarginBottom;
-      element.classList.remove('pdf-mode');
+      // Helper function to add text with word wrap
+      const addText = (text, fontSize, isBold = false, color = [0, 0, 0]) => {
+        pdf.setFontSize(fontSize);
+        pdf.setFont('helvetica', isBold ? 'bold' : 'normal');
+        pdf.setTextColor(...color);
+        const lines = pdf.splitTextToSize(text, contentWidth);
+        checkNewPage(lines.length * (fontSize * 0.4));
+        pdf.text(lines, margin, y);
+        y += lines.length * (fontSize * 0.4);
+      };
       
-      // Restore parent styles
-      parentElement.style.cssText = originalParentStyle;
+      // Helper to add a section with title
+      const addSection = (title, content, fontSize = 10) => {
+        checkNewPage(15);
+        y += 3;
+        pdf.setDrawColor(200, 200, 200);
+        pdf.line(margin, y, pageWidth - margin, y);
+        y += 3;
+        addText(title, fontSize + 2, true, templateStyle.sectionTitle);
+        if (content) {
+          addText(content, fontSize);
+        }
+        y += 2;
+      };
       
-      // Restore dark mode if it was present
-      if (hadDarkClass) {
-        htmlElement.classList.add('dark');
+      // Get template-specific styling
+      const getTemplateStyle = () => {
+        switch (selectedTemplate) {
+          case 'modern':
+            return {
+              headerBg: [59, 130, 246],
+              headerText: [255, 255, 255],
+              sectionTitle: [59, 130, 246],
+              nameSize: 26
+            };
+          case 'minimal':
+            return {
+              headerBg: [255, 255, 255],
+              headerText: [0, 0, 0],
+              sectionTitle: [0, 0, 0],
+              nameSize: 24
+            };
+          case 'doubleColumn':
+            return {
+              headerBg: [31, 41, 55],
+              headerText: [255, 255, 255],
+              sectionTitle: [31, 41, 55],
+              nameSize: 22
+            };
+          case 'leftSidebar':
+            return {
+              headerBg: [107, 114, 128],
+              headerText: [255, 255, 255],
+              sectionTitle: [107, 114, 128],
+              nameSize: 24
+            };
+          case 'rightSidebar':
+            return {
+              headerBg: [75, 85, 99],
+              headerText: [255, 255, 255],
+              sectionTitle: [75, 85, 99],
+              nameSize: 24
+            };
+          case 'executive':
+            return {
+              headerBg: [31, 41, 55],
+              headerText: [255, 255, 255],
+              sectionTitle: [31, 41, 55],
+              nameSize: 28
+            };
+          case 'technical':
+            return {
+              headerBg: [0, 100, 80],
+              headerText: [255, 255, 255],
+              sectionTitle: [0, 100, 80],
+              nameSize: 24
+            };
+          case 'creative':
+            return {
+              headerBg: [236, 72, 153],
+              headerText: [255, 255, 255],
+              sectionTitle: [236, 72, 153],
+              nameSize: 26
+            };
+          case 'academic':
+            return {
+              headerBg: [107, 114, 128],
+              headerText: [255, 255, 255],
+              sectionTitle: [107, 114, 128],
+              nameSize: 22
+            };
+          default: // classic
+            return {
+              headerBg: [37, 99, 235],
+              headerText: [255, 255, 255],
+              sectionTitle: [37, 99, 235],
+              nameSize: 24
+            };
+        }
+      };
+      
+      const templateStyle = getTemplateStyle();
+      
+      // Header - Name
+      pdf.setFillColor(...templateStyle.headerBg);
+      pdf.rect(0, 0, pageWidth, 35, 'F');
+      
+      pdf.setTextColor(...templateStyle.headerText);
+      pdf.setFontSize(templateStyle.nameSize);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text(data.fullName || 'Your Name', margin, 15);
+      
+      pdf.setFontSize(10);
+      pdf.setFont('helvetica', 'normal');
+      
+      // Contact info in header
+      const contactParts = [];
+      if (data.email) contactParts.push(data.email);
+      if (data.phone) contactParts.push(data.phone);
+      if (data.location) contactParts.push(data.location);
+      
+      const contactLine = contactParts.join(' | ');
+      pdf.text(contactLine, margin, 23);
+      
+      // Social links in header
+      let linkX = margin;
+      if (data.linkedin) {
+        const linkedinUrl = data.linkedin.startsWith('http') ? data.linkedin : `https://${data.linkedin}`;
+        pdf.text('LinkedIn', linkX, 30);
+        const textWidth = pdf.getTextWidth('LinkedIn');
+        pdf.link(linkX, 27, textWidth, 4, linkedinUrl);
+        linkX += textWidth + 10;
+      }
+      if (data.github) {
+        const githubUrl = data.github.startsWith('http') ? data.github : `https://${data.github}`;
+        pdf.text('GitHub', linkX, 30);
+        const textWidth = pdf.getTextWidth('GitHub');
+        pdf.link(linkX, 27, textWidth, 4, githubUrl);
+        linkX += textWidth + 10;
+      }
+      if (data.portfolio) {
+        const portfolioUrl = data.portfolio.startsWith('http') ? data.portfolio : `https://${data.portfolio}`;
+        pdf.text('Portfolio', linkX, 30);
+        const textWidth = pdf.getTextWidth('Portfolio');
+        pdf.link(linkX, 27, textWidth, 4, portfolioUrl);
       }
       
-      // Create PDF with A4 size
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
+      y = 42;
       
-      // Add margins (10mm on each side)
-      const marginLeft = 10;
-      const marginRight = 10;
-      const marginTop = 10;
-      const marginBottom = 10;
+      // Summary
+      if (data.summary) {
+        addSection('Professional Summary', data.summary, 10, templateStyle.sectionTitle);
+      }
       
-      const availableWidth = pdfWidth - marginLeft - marginRight;
-      const availableHeight = pdfHeight - marginTop - marginBottom;
+      // Skills
+      if (data.skills && data.skills.length > 0) {
+        checkNewPage(15);
+        y += 3;
+        addText('Skills', 12, true, templateStyle.sectionTitle);
+        y += 2;
+        const skillsText = data.skills.join(' • ');
+        addText(skillsText, 10);
+      }
       
-      // Calculate dimensions to fit within margins while maintaining aspect ratio
-      const imgWidth = canvas.width;
-      const imgHeight = canvas.height;
+      // Experience
+      if (data.experience && data.experience.length > 0) {
+        checkNewPage(20);
+        y += 3;
+        addText('Experience', 12, true, templateStyle.sectionTitle);
+        y += 2;
+        
+        data.experience.forEach((exp) => {
+          checkNewPage(20);
+          pdf.setFontSize(11);
+          pdf.setFont('helvetica', 'bold');
+          pdf.setTextColor(51, 51, 51);
+          pdf.text(exp.position || 'Position', margin, y);
+          
+          pdf.setFont('helvetica', 'normal');
+          pdf.setFontSize(10);
+          const dateText = `${exp.startDate || ''} - ${exp.isCurrent ? 'Present' : exp.endDate || ''}`;
+          pdf.text(dateText, pageWidth - margin - pdf.getTextWidth(dateText), y);
+          y += 4;
+          
+          pdf.setTextColor(100, 100, 100);
+          const companyText = `${exp.company || 'Company'}${exp.location ? `, ${exp.location}` : ''}`;
+          pdf.text(companyText, margin, y);
+          y += 4;
+          
+          if (exp.description) {
+            pdf.setTextColor(51, 51, 51);
+            const descLines = pdf.splitTextToSize(exp.description, contentWidth);
+            pdf.text(descLines, margin, y);
+            y += descLines.length * 4 + 3;
+          } else {
+            y += 3;
+          }
+        });
+      }
       
-      // Scale to fit within available space
-      const scale = Math.min(availableWidth / imgWidth, availableHeight / imgHeight);
-      const finalWidth = imgWidth * scale;
-      const finalHeight = imgHeight * scale;
+      // Education
+      if (data.education && data.education.length > 0) {
+        checkNewPage(20);
+        y += 3;
+        addText('Education', 12, true, templateStyle.sectionTitle);
+        y += 2;
+        
+        data.education.forEach((edu) => {
+          checkNewPage(15);
+          pdf.setFontSize(11);
+          pdf.setFont('helvetica', 'bold');
+          pdf.setTextColor(51, 51, 51);
+          pdf.text(`${edu.degree || ''} in ${edu.field || 'Field'}`, margin, y);
+          
+          pdf.setFont('helvetica', 'normal');
+          pdf.setFontSize(10);
+          const dateText = `${edu.startDate || ''} - ${edu.endDate || ''}`;
+          pdf.text(dateText, pageWidth - margin - pdf.getTextWidth(dateText), y);
+          y += 4;
+          
+          pdf.setTextColor(100, 100, 100);
+          let eduText = edu.institution || 'Institution';
+          if (edu.grade) eduText += ` | ${edu.grade}`;
+          pdf.text(eduText, margin, y);
+          y += 6;
+        });
+      }
       
-      // Center the image horizontally within margins
-      const imgX = marginLeft + (availableWidth - finalWidth) / 2;
-      const imgY = marginTop;
+      // Projects
+      if (data.projects && data.projects.length > 0) {
+        checkNewPage(20);
+        y += 3;
+        addText('Projects', 12, true, templateStyle.sectionTitle);
+        y += 2;
+        
+        data.projects.forEach((project) => {
+          checkNewPage(18);
+          pdf.setFontSize(11);
+          pdf.setFont('helvetica', 'bold');
+          pdf.setTextColor(51, 51, 51);
+          pdf.text(project.name || 'Project Name', margin, y);
+          
+          if (project.link) {
+            const projUrl = project.link.startsWith('http') ? project.link : `https://${project.link}`;
+            pdf.setTextColor(0, 102, 204);
+            const linkText = '[Link]';
+            pdf.text(linkText, margin + pdf.getTextWidth(project.name || '') + 2, y);
+            pdf.link(margin + pdf.getTextWidth(project.name || '') + 2, y - 1.5, pdf.getTextWidth(linkText), 3, projUrl);
+          }
+          y += 4;
+          
+          pdf.setFont('helvetica', 'normal');
+          pdf.setFontSize(10);
+          
+          if (project.description) {
+            pdf.setTextColor(51, 51, 51);
+            const descLines = pdf.splitTextToSize(project.description, contentWidth);
+            pdf.text(descLines, margin, y);
+            y += descLines.length * 4;
+          }
+          
+          if (project.technologies) {
+            pdf.setTextColor(100, 100, 100);
+            pdf.text(`Technologies: ${project.technologies}`, margin, y);
+            y += 5;
+          } else {
+            y += 3;
+          }
+        });
+      }
       
-      pdf.addImage(imgData, 'PNG', imgX, imgY, finalWidth, finalHeight);
-      pdf.save(`${displayData.fullName || 'resume'}.pdf`);
+      // Certifications
+      if (data.certifications && data.certifications.length > 0) {
+        checkNewPage(15);
+        y += 3;
+        addText('Certifications', 12, true, templateStyle.sectionTitle);
+        y += 2;
+        
+        data.certifications.forEach((cert) => {
+          checkNewPage(10);
+          pdf.setFontSize(10);
+          pdf.setFont('helvetica', 'bold');
+          pdf.setTextColor(51, 51, 51);
+          pdf.text(cert.name || 'Certification', margin, y);
+          
+          pdf.setFont('helvetica', 'normal');
+          pdf.setTextColor(100, 100, 100);
+          const certText = `${cert.issuer || ''}${cert.date ? ` - ${cert.date}` : ''}`;
+          pdf.text(certText, margin + 5, y + 4);
+          y += 8;
+        });
+      }
+      
+      // Save the PDF
+      pdf.save(`${data.fullName || 'resume'}.pdf`);
     } catch (error) {
       console.error('Error generating PDF:', error);
     } finally {
@@ -1696,8 +1892,8 @@ const ResumeBuilder = () => {
     };
 
     return (
-      <div className="w-full overflow-x-auto flex justify-center p-2 sm:p-4">
-        <div id="resume-preview" className="resume-a4 shadow-lg bg-white">
+      <div className="w-full overflow-x-auto flex justify-center p-2 sm:p-4 resume-preview-container">
+        <div id="resume-preview" className="resume-a4 shadow-lg bg-white resume-preview-wrapper">
           {renderTemplate()}
         </div>
       </div>

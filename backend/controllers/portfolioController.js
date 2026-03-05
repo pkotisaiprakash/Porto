@@ -442,3 +442,75 @@ exports.deleteResume = async (req, res) => {
     });
   }
 };
+
+// @desc    Save resume draft
+// @route   POST /api/portfolio/draft
+// @access  Private
+exports.saveResumeDraft = async (req, res) => {
+  try {
+    const { draftData } = req.body;
+    
+    if (!draftData) {
+      return res.status(400).json({
+        success: false,
+        message: 'Draft data is required'
+      });
+    }
+
+    let portfolio = await Portfolio.findOne({ userId: req.user.id });
+
+    if (!portfolio) {
+      // Create a new portfolio with the draft
+      portfolio = await Portfolio.create({
+        userId: req.user.id,
+        resumeDraft: draftData,
+        resumeDraftSavedAt: new Date()
+      });
+    } else {
+      // Update existing portfolio with draft
+      portfolio.resumeDraft = draftData;
+      portfolio.resumeDraftSavedAt = new Date();
+      await portfolio.save();
+    }
+
+    res.json({
+      success: true,
+      message: 'Resume draft saved successfully',
+      savedAt: portfolio.resumeDraftSavedAt
+    });
+  } catch (error) {
+    console.error('SaveResumeDraft error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
+  }
+};
+
+// @desc    Get resume draft
+// @route   GET /api/portfolio/draft
+// @access  Private
+exports.getResumeDraft = async (req, res) => {
+  try {
+    const portfolio = await Portfolio.findOne({ userId: req.user.id });
+
+    if (!portfolio || !portfolio.resumeDraft) {
+      return res.json({
+        success: true,
+        draft: null
+      });
+    }
+
+    res.json({
+      success: true,
+      draft: portfolio.resumeDraft,
+      savedAt: portfolio.resumeDraftSavedAt
+    });
+  } catch (error) {
+    console.error('GetResumeDraft error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
+  }
+};

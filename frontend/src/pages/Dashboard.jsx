@@ -6,7 +6,7 @@ import useDocumentTitle from '../hooks/useDocumentTitle';
 import { portfolioAPI } from '../services/api';
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, isPremium } = useAuth();
   const { portfolio, loading, fetchPortfolio } = usePortfolio();
   const [deleting, setDeleting] = useState(false);
   useDocumentTitle('Dashboard');
@@ -46,6 +46,26 @@ const Dashboard = () => {
 
         {/* Status Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {/* Premium Status */}
+          {!isPremium && (
+            <div className="bg-gradient-to-r from-amber-900 to-purple-900 rounded-xl p-6 border border-amber-700">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-amber-200">Upgrade to Premium</p>
+                  <p className="mt-1 text-lg font-bold text-white">
+                    Unlock all features
+                  </p>
+                </div>
+                <Link
+                  to="/premium"
+                  className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-lg font-medium hover:from-amber-400 hover:to-orange-500 transition-colors"
+                >
+                  Upgrade
+                </Link>
+              </div>
+            </div>
+          )}
+
           {/* Portfolio Status */}
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-700">
             <div className="flex items-center justify-between">

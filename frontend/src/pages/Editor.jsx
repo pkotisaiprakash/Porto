@@ -400,8 +400,8 @@ const Editor = () => {
 
         <div className="space-y-8">
           {/* Basic Info */}
-          <section className="bg-white dark:bg-gray-800 dark:text-gray-100 rounded-xl shadow-sm p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Basic Information</h2>
+          <section className="bg-white dark:bg-gray-800 dark:text-gray-100 rounded-xl shadow-sm p-6 border border-gray-300 dark:border-gray-700 shadow-gray-200 dark:shadow-gray-700">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4 dark:text-white">Basic Information</h2>
             
             {/* Resume Upload */}
             {/*
@@ -441,7 +441,7 @@ const Editor = () => {
               </div>
             </div> */}
             <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <h3 className="font-medium text-blue-800">Resume Upload feature is in testing</h3>
+              <h3 className="font-medium text-blue-800">Resume Upload feature is in Testing</h3>
               <p className="text-sm text-blue-700 mt-1">This feature is currently being tested and is not available at the moment. In the meantime, please fill in your details manually to create your portfolio. We appreciate your understanding and patience!</p> 
             </div>
             
@@ -528,7 +528,7 @@ const Editor = () => {
           </section>
 
           {/* Skills */}
-          <section className="bg-white dark:bg-gray-800 dark:text-gray-100 rounded-xl shadow-sm p-6">
+          <section className="bg-white dark:bg-gray-800 dark:text-gray-100 rounded-xl shadow-sm p-6 border border-gray-300 dark:border-gray-700 shadow-gray-200 dark:shadow-gray-700">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Skills</h2>
               <button
@@ -563,7 +563,7 @@ const Editor = () => {
           </section>
 
           {/* Education */}
-          <section className="bg-white dark:bg-gray-800 dark:text-gray-100 rounded-xl shadow-sm p-6">
+          <section className="bg-white dark:bg-gray-800 dark:text-gray-100 rounded-xl shadow-sm  p-6 border border-gray-300 dark:border-gray-700 shadow-gray-200 dark:shadow-gray-700">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Education</h2>
               <button
@@ -575,27 +575,27 @@ const Editor = () => {
             </div>
             <div className="space-y-6">
               {formData.education.map((edu, index) => (
-                <div key={index} className="p-4 bg-gray-50 rounded-lg">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div key={index} className="p-4 bg-gray-50 rounded-lg dark:bg-gray-700">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 ">
                     <input
                       type="text"
                       value={edu.institution}
                       onChange={(e) => handleEducationChange(index, 'institution', e.target.value)}
-                      className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      className="px-3 py-2 border border-gray-300 dark:bg-gray-600 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       placeholder="Institution *"
                     />
                     <input
                       type="text"
                       value={edu.degree}
                       onChange={(e) => handleEducationChange(index, 'degree', e.target.value)}
-                      className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      className="px-3 py-2 border border-gray-300 dark:bg-gray-600 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       placeholder="Degree *"
                     />
                     <input
                       type="text"
                       value={edu.field}
                       onChange={(e) => handleEducationChange(index, 'field', e.target.value)}
-                      className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      className="px-3 py-2 border border-gray-300 dark:bg-gray-600 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       placeholder="Field of Study"
                     />
                     <div className="flex gap-2 w-full">
@@ -603,14 +603,14 @@ const Editor = () => {
                         type="text"
                         value={edu.startDate}
                         onChange={(e) => handleEducationChange(index, 'startDate', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent flex-1"
+                        className="w-full px-3 py-2 border border-gray-300 dark:bg-gray-600 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent flex-1"
                         placeholder="Start Year"
                       />
                       <input
                         type="text"
                         value={edu.endDate}
                         onChange={(e) => handleEducationChange(index, 'endDate', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent flex-1"
+                        className="w-full px-3 py-2 border border-gray-300 dark:bg-gray-600 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent flex-1"
                         placeholder="End Year"
                       />
                     </div>
@@ -627,7 +627,7 @@ const Editor = () => {
           </section>
 
           {/* Projects */}
-          <section className="bg-white dark:bg-gray-800 dark:text-gray-100 rounded-xl shadow-sm p-6">
+          <section className="bg-white dark:bg-gray-800 dark:text-gray-100 rounded-xl shadow-sm p-6 border border-gray-300 dark:border-gray-700 shadow-gray-200 dark:shadow-gray-700">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Projects</h2>
               <button
@@ -639,27 +639,27 @@ const Editor = () => {
             </div>
             <div className="space-y-6">
               {formData.projects.map((project, index) => (
-                <div key={index} className="p-4 bg-gray-50 rounded-lg">
+                <div key={index} className="p-4 bg-gray-50 rounded-lg dark:bg-gray-700">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <input
                       type="text"
                       value={project.title}
                       onChange={(e) => handleProjectChange(index, 'title', e.target.value)}
-                      className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      className="px-3 py-2 border border-gray-300 dark:bg-gray-600 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       placeholder="Project Title *"
                     />
                     <input
                       type="text"
                       value={project.link}
                       onChange={(e) => handleProjectChange(index, 'link', e.target.value)}
-                      className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      className="px-3 py-2 border border-gray-300 dark:bg-gray-600 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       placeholder="Project URL"
                     />
                     <input
                       type="text"
                       value={project.image}
                       onChange={(e) => handleProjectChange(index, 'image', e.target.value)}
-                      className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      className="px-3 py-2 border border-gray-300 dark:bg-gray-600 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       placeholder="Image URL"
                     />
                     <div className="flex gap-2">
@@ -667,14 +667,14 @@ const Editor = () => {
                         type="text"
                         value={project.startDate}
                         onChange={(e) => handleProjectChange(index, 'startDate', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent flex-1"
+                        className="w-full px-3 py-2 border border-gray-300 dark:bg-gray-600 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent flex-1"
                         placeholder="Start"
                       />
                       <input
                         type="text"
                         value={project.endDate}
                         onChange={(e) => handleProjectChange(index, 'endDate', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent flex-1"
+                        className="w-full px-3 py-2 border border-gray-300 dark:bg-gray-600 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent flex-1"
                         placeholder="End"
                       />
                     </div>
@@ -682,7 +682,7 @@ const Editor = () => {
                       <textarea
                         value={project.description}
                         onChange={(e) => handleProjectChange(index, 'description', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-gray-300 dark:bg-gray-600 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                         rows={2}
                         placeholder="Description"
                       />
@@ -700,7 +700,7 @@ const Editor = () => {
           </section>
 
           {/* Certificates */}
-          <section className="bg-white dark:bg-gray-800 dark:text-gray-100 rounded-xl shadow-sm p-6">
+          <section className="bg-white dark:bg-gray-800 dark:text-gray-100 rounded-xl shadow-sm p-6 border border-gray-300 dark:border-gray-700 shadow-gray-200 dark:shadow-gray-700">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Certificates</h2>
               <button
@@ -712,34 +712,34 @@ const Editor = () => {
             </div>
             <div className="space-y-4">
               {formData.certificates.map((cert, index) => (
-                <div key={index} className="p-4 bg-gray-50 rounded-lg">
+                <div key={index} className="p-4 bg-gray-50 rounded-lg dark:bg-gray-700">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <input
                       type="text"
                       value={cert.name}
                       onChange={(e) => handleCertificateChange(index, 'name', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 dark:bg-gray-600 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       placeholder="Certificate Name *"
                     />
                     <input
                       type="text"
                       value={cert.issuer}
                       onChange={(e) => handleCertificateChange(index, 'issuer', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 dark:bg-gray-600 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       placeholder="Issuer *"
                     />
                     <input
                       type="text"
                       value={cert.date}
                       onChange={(e) => handleCertificateChange(index, 'date', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 dark:bg-gray-600 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       placeholder="Date"
                     />
                     <input
                       type="text"
                       value={cert.link}
                       onChange={(e) => handleCertificateChange(index, 'link', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 dark:bg-gray-600 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       placeholder="Certificate Link"
                     />
                   </div>
@@ -755,7 +755,7 @@ const Editor = () => {
           </section>
 
           {/* Social Links */}
-          <section className="bg-white dark:bg-gray-800 dark:text-gray-100 rounded-xl shadow-sm p-6">
+          <section className="bg-white dark:bg-gray-800 dark:text-gray-100 rounded-xl shadow-sm p-6 border border-gray-300 dark:border-gray-700 shadow-gray-200 dark:shadow-gray-700">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Social Links</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -817,8 +817,8 @@ const Editor = () => {
           </section>
 
           {/* Theme Settings */}
-          <section className="bg-white dark:bg-gray-800 dark:text-gray-100 rounded-xl shadow-sm p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Theme Settings</h2>
+          <section className="bg-white dark:bg-gray-800 dark:text-gray-100 rounded-xl shadow-sm p-6 border border-gray-300 dark:border-gray-700 shadow-gray-200 dark:shadow-gray-700">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4 dark:text-white">Theme Settings</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Primary Color</label>

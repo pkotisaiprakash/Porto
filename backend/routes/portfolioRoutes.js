@@ -10,7 +10,9 @@ const {
   getPublicPortfolio,
   getAdminStats,
   uploadResume,
-  deleteResume
+  deleteResume,
+  saveResumeDraft,
+  getResumeDraft
 } = require('../controllers/portfolioController');
 const { protect, admin } = require('../middleware/authMiddleware');
 const upload = require('../middleware/uploadMiddleware');
@@ -28,6 +30,12 @@ router.post('/resume', protect, upload.single('resume'), uploadResume);
 
 // Delete resume
 router.delete('/resume', protect, deleteResume);
+
+// Save resume draft
+router.post('/draft', protect, saveResumeDraft);
+
+// Get resume draft
+router.get('/draft', protect, getResumeDraft);
 
 // Admin routes
 router.get('/admin/stats', protect, admin, getAdminStats);

@@ -166,13 +166,12 @@ const Home = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-              {[
-                {
-                  icon: '🎨',
-                  title: 'Beautiful Templates',
-                  desc: 'Choose from 7 stunning templates including Neon, Colorful & Animated',
-                  color: 'from-cyan-400 to-cyan-600'
-                },
+              {[{
+                icon: '🎨',
+                title: 'Beautiful Templates',
+                desc: 'Choose from 5 free & 9 premium templates including Neon, Colorful & Animated',
+                color: 'from-cyan-400 to-cyan-600'
+              },
                 {
                   icon: '📄',
                   title: 'Resume Builder',
@@ -222,11 +221,11 @@ const Home = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
               {templates.length > 0 ? (
-                templates.map((template, index) => (
+                templates.slice(0, 8).map((template, index) => (
                   <Link
                     to="/templates"
                     key={template._id}
-                    className={`bg-gradient-to-br from-gray-600 to-gray-800 rounded-2xl overflow-hidden hover:shadow-[0_0_30px_rgba(139,92,246,0.3)] transition-all duration-300 hover:-translate-y-2 border-2 border-cyan-500/30 group`}
+                    className={`bg-gradient-to-br from-gray-600 to-gray-800 rounded-2xl overflow-hidden hover:shadow-[0_0_30px_rgba(139,92,246,0.3)] transition-all duration-300 hover:-translate-y-2 border-2 border-cyan-500/30 group relative`}
                     style={{ animationDelay: `${index * 0.1}s` }}
                   >
                     <div className="aspect-video relative overflow-hidden bg-black/20">
@@ -235,6 +234,14 @@ const Home = () => {
                         alt={template.name}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                       />
+                      {template.isPremium && (
+                        <div className="absolute top-2 right-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1">
+                          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                          </svg>
+                          Premium
+                        </div>
+                      )}
                     </div>
                     <div className="p-4">
                       <h3 className="font-semibold text-white">{template.name}</h3>
@@ -278,6 +285,69 @@ const Home = () => {
               >
                 View All Templates
               </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* Premium Templates Section */}
+        <div className="py-24 bg-gradient-to-r from-amber-900/20 via-purple-900/20 to-cyan-900/20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-full text-sm font-semibold mb-4">
+                <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+                Premium Collection
+              </div>
+              <h2 className="text-4xl font-bold mb-4">
+                <span className="bg-gradient-to-r from-amber-400 via-orange-500 to-amber-400 bg-clip-text text-transparent">
+                  Exclusive Premium Templates
+                </span>
+              </h2>
+              <p className="text-gray-400 max-w-2xl mx-auto">
+                Unlock access to our premium collection of 9+ professionally designed templates with advanced features and exclusive designs.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              {templates.filter(t => t.isPremium).slice(0, 3).map((template, index) => (
+                <Link
+                  to="/premium"
+                  key={template._id}
+                  className="group relative bg-gradient-to-br from-gray-700 to-gray-900 rounded-2xl overflow-hidden hover:shadow-[0_0_40px_rgba(245,158,11,0.3)] transition-all duration-300 hover:-translate-y-2 border-2 border-amber-500/30"
+                >
+                  <div className="aspect-video relative overflow-hidden bg-black/30">
+                    <img
+                      src={template.previewImage}
+                      alt={template.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                    />
+                    <div className="absolute top-3 right-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1">
+                      <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                      Premium
+                    </div>
+                  </div>
+                  <div className="p-4">
+                    <h3 className="font-semibold text-white text-lg">{template.name}</h3>
+                    <p className="text-sm text-gray-400 mt-1">{template.description?.slice(0, 60)}...</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+
+            <div className="text-center">
+              <Link
+                to="/premium"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-amber-500 to-orange-600 rounded-xl font-semibold hover:from-amber-400 hover:to-orange-500 transition-all duration-300"
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+                Upgrade to Premium
+              </Link>
+              <p className="mt-4 text-gray-500 text-sm">Starting at just ₹9/month</p>
             </div>
           </div>
         </div>
@@ -455,7 +525,7 @@ const Home = () => {
               {[
                 { step: '01', title: 'Sign Up', desc: 'Create your free account in seconds', icon: '👤' },
                 { step: '02', title: 'Upload Resume', desc: 'Upload your resume and we auto-generate your portfolio', icon: '📄' },
-                { step: '03', title: 'Choose Template', desc: 'Pick from 7 stunning templates', icon: '🎯' },
+                { step: '03', title: 'Choose Template', desc: 'Pick from 5 free & 9 premium templates', icon: '🎯' },
                 { step: '04', title: 'Publish & Share', desc: 'Get your unique URL and share with employers', icon: '🚀' }
               ].map((item, index) => (
                 <div 

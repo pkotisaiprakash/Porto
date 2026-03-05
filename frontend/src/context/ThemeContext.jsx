@@ -11,31 +11,36 @@ export const useTheme = () => {
 };
 
 export const ThemeProvider = ({ children }) => {
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    const saved = localStorage.getItem('theme');
-    if (saved) {
-      return saved === 'dark';
-    }
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
-  });
+  // Always dark mode - light mode has been removed
+  const [isDarkMode] = useState(true);
+  
+  // Disable theme changes
+  const [disableThemeChange, setDisableThemeChange] = useState(false);
 
   useEffect(() => {
+    // Skip theme application if disabled
+    if (disableThemeChange) return;
+    
+    // Always apply dark mode
     const root = window.document.documentElement;
-    if (isDarkMode) {
-      root.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      root.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
-  }, [isDarkMode]);
+    root.classList.add('dark');
+    localStorage.setItem('theme', 'dark');
+  }, [disableThemeChange]);
 
+  // Theme toggle does nothing - kept for UI compatibility
   const toggleTheme = () => {
-    setIsDarkMode(prev => !prev);
+    // No-op - only dark mode supported
+  };
+
+  // Force dark mode (for preview/export)
+  const forceLightMode = (force) => {
+    // Still force dark mode - light mode removed
+    const root = window.document.documentElement;
+    root.classList.add('dark');
   };
 
   return (
-    <ThemeContext.Provider value={{ isDarkMode, toggleTheme }}>
+    <ThemeContext.Provider value={{ isDarkMode: true, toggleTheme, disableThemeChange, setDisableThemeChange, forceLightMode }}>
       {children}
     </ThemeContext.Provider>
   );

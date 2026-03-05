@@ -71,7 +71,11 @@ export const authAPI = {
   register: (data) => api.post('/auth/register', data),
   login: (data) => api.post('/auth/login', data),
   getMe: () => api.get('/auth/me'),
-  logout: () => api.post('/auth/logout')
+  logout: () => api.post('/auth/logout'),
+  forgotPassword: (email) => api.post('/auth/forgot-password', email),
+  resetPassword: (resetToken, password) => api.post(`/auth/reset-password/${resetToken}`, { password }),
+  purchasePremium: (paymentId, plan = 'monthly') => api.post('/auth/purchase-premium', { paymentId, plan, amount: plan === 'yearly' ? 99 : 9 }),
+  updateProfile: (data) => api.put('/auth/update-profile', data)
 };
 
 // Template API
@@ -102,7 +106,9 @@ export const portfolioAPI = {
     formData.append('resume', file);
     return fileApi.post('/portfolio/resume', formData);
   },
-  deleteResume: () => api.delete('/portfolio/resume')
+  deleteResume: () => api.delete('/portfolio/resume'),
+  saveDraft: (draftData) => api.post('/portfolio/draft', { draftData }),
+  getDraft: () => api.get('/portfolio/draft')
 };
 
 export default api;

@@ -124,6 +124,13 @@ const portfolioSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  resumeDraft: {
+    type: Object,
+    default: null
+  },
+  resumeDraftSavedAt: {
+    type: Date
+  },
   createdAt: {
     type: Date,
     default: Date.now

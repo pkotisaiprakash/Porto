@@ -80,6 +80,16 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const updatePremium = (userData) => {
+    setUser(userData);
+    localStorage.setItem('user', JSON.stringify(userData));
+  };
+
+  const updateUser = (userData) => {
+    setUser(userData);
+    localStorage.setItem('user', JSON.stringify(userData));
+  };
+
   const value = {
     user,
     loading,
@@ -87,8 +97,11 @@ export const AuthProvider = ({ children }) => {
     register,
     login,
     logout,
+    updatePremium,
+    updateUser,
     isAuthenticated: !!user,
-    isAdmin: user?.role === 'admin'
+    isAdmin: user?.role === 'admin',
+    isPremium: user?.isPremium || false
   };
 
   return (
