@@ -27,8 +27,8 @@ A full-stack MERN application for students to build professional portfolios and 
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/portfolio-builder.git
-cd portfolio-builder
+git clone https://github.com/pkotisaiprakash/porto.git
+cd porto
 ```
 
 ### 2. Install Dependencies
@@ -115,7 +115,7 @@ npm run client
 ## Project Structure
 
 ```
-portfolio-builder/
+porto/
 ├── backend/              # Express.js API
 │   ├── config/         # Database configuration
 │   ├── controllers/    # Route controllers
