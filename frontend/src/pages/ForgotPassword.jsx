@@ -30,7 +30,7 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="h-[85vh] bg-gray-50 dark:bg-gray-900 flex items-center justify-center py-12 px-4 text-gray-900 dark:text-gray-100">
+    <div className=" bg-gray-50 dark:bg-gray-900 flex items-center justify-center py-12 px-4 text-gray-900 dark:text-gray-100">
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
           <Link to="/" className="text-3xl font-bold bg-gradient-to-r from-cyan-500 to-purple-600 bg-clip-text text-transparent">Porto</Link>

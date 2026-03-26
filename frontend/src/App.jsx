@@ -1,5 +1,5 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
+import { BrowserRouter as Router, Routes, Route, useNavigate, useSearchParams } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { PortfolioProvider } from './context/PortfolioContext';
 import { ThemeProvider } from './context/ThemeContext';
 import Navbar from './components/Navbar';
@@ -17,6 +17,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import ResumeBuilder from './pages/ResumeBuilder';
 import Profile from './pages/Profile';
 import Premium from './pages/Premium';
+import AuthCallback from './pages/AuthCallback';
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
                 <Route path="/reset-password/:resetToken" element={<ResetPassword />} />
                 <Route path="/u/:username" element={<PublicPortfolio />} />
                 <Route path="/premium" element={<Premium />} />
+                <Route path="/auth/callback" element={<AuthCallback />} />
                 
                 {/* Protected Routes */}
                 <Route path="/dashboard" element={

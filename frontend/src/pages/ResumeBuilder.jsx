@@ -564,27 +564,27 @@ const ResumeBuilder = () => {
       case 'personal':
         return (
           <div className="space-y-4">
-            <h3 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Personal Information</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
+            <h3 className={`text-base sm:text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Personal Information</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div className="sm:col-span-2">
                 <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Full Name *</label>
                 <input
                   type="text"
                   name="fullName"
                   value={formData.fullName}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 dark:text-white"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 dark:text-white"
                   placeholder="John Doe"
                 />
               </div>
-              <div>
+              <div className="sm:col-span-2">
                 <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Email *</label>
                 <input
                   type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 dark:text-white"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 dark:text-white"
                   placeholder="john@example.com"
                 />
               </div>
@@ -595,7 +595,7 @@ const ResumeBuilder = () => {
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 dark:text-white"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 dark:text-white"
                   placeholder="+1 234 567 8900"
                 />
               </div>
@@ -606,7 +606,7 @@ const ResumeBuilder = () => {
                   name="location"
                   value={formData.location}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 dark:text-white"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 dark:text-white"
                   placeholder="City, Country"
                 />
               </div>
@@ -617,7 +617,7 @@ const ResumeBuilder = () => {
                   name="linkedin"
                   value={formData.linkedin}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 dark:text-white"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 dark:text-white"
                   placeholder="https://linkedin.com/in/username"
                 />
               </div>
@@ -628,29 +628,29 @@ const ResumeBuilder = () => {
                   name="github"
                   value={formData.github}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 dark:text-white"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 dark:text-white"
                   placeholder="https://github.com/username"
                 />
               </div>
-              <div>
+              <div className="sm:col-span-2">
                 <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Portfolio Website</label>
                 <input
                   type="url"
                   name="portfolio"
                   value={formData.portfolio}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 dark:text-white"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 dark:text-white"
                   placeholder="https://yourportfolio.com"
                 />
               </div>
-              <div className="md:col-span-2">
+              <div className="sm:col-span-2">
                 <label className={`block text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Professional Summary</label>
                 <textarea
                   name="summary"
                   value={formData.summary}
                   onChange={handleChange}
-                  rows={4}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 dark:text-white"
+                  rows={3}
+                  className="w-full px-3 sm:px-4 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 dark:text-white"
                   placeholder="Write a brief summary about yourself, your skills, and career objectives..."
                 />
               </div>
@@ -1892,8 +1892,8 @@ const ResumeBuilder = () => {
     };
 
     return (
-      <div className="w-full overflow-x-auto flex justify-center p-2 sm:p-4 resume-preview-container">
-        <div id="resume-preview" className="resume-a4 shadow-lg bg-white resume-preview-wrapper">
+      <div className="w-full flex justify-start p-2 sm:p-4 resume-preview-container">
+        <div id="resume-preview" className="resume-a4 shadow-lg bg-white" style={{ width: '210mm', flexShrink: 0 }}>
           {renderTemplate()}
         </div>
       </div>
@@ -1901,25 +1901,54 @@ const ResumeBuilder = () => {
   };
   
   return (
-    <div className={`min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'} py-8`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-8">
-          <h1 className={`text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Resume Builder</h1>
-          <p className={`mt-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Create professional resumes and download as PDF</p>
+    <div className={`min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'} py-4 sm:py-8`}>
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
+        <div className="text-center mb-4 sm:mb-8">
+          <h1 className={`text-2xl sm:text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Resume Builder</h1>
+          <p className={`mt-1 sm:mt-2 text-sm sm:text-base ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Create professional resumes and download as PDF</p>
         </div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Mobile: Section tabs as horizontal scroll */}
+        <div className="lg:hidden mb-4 overflow-x-auto">
+          <div className="flex space-x-2 px-2 py-2">
+            {sections.map(section => (
+              <button
+                key={section.id}
+                onClick={() => { setActiveSection(section.id); setIsPreviewMode(false); }}
+                className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
+                  activeSection === section.id && !isPreviewMode
+                    ? 'bg-primary-600 text-white'
+                    : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+                }`}
+              >
+                {section.label}
+              </button>
+            ))}
+            <button
+              onClick={() => setIsPreviewMode(true)}
+              className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
+                isPreviewMode
+                  ? 'bg-green-600 text-white'
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+              }`}
+            >
+              Preview
+            </button>
+          </div>
+        </div>
+
+        <div className="flex flex-col lg:grid lg:grid-cols-3 gap-4 lg:gap-8">
           {/* Left Panel - Form */}
-          <div className={`lg:col-span-1 rounded-xl shadow-sm p-6 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+          <div className={`lg:col-span-1 rounded-xl shadow-sm p-3 sm:p-6 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
             {/* Preview Toggle */}
-            <div className="mb-6">
+            <div className="mb-4 sm:mb-6">
               <div className="flex items-center justify-between">
                 <h3 className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Preview Mode</h3>
                 <button
                   onClick={() => setIsPreviewMode(!isPreviewMode)}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${isPreviewMode ? 'bg-green-500' : 'bg-gray-300'}`}
+                  className={`relative inline-flex h-5 w-9 sm:h-6 sm:w-11 items-center rounded-full transition-colors ${isPreviewMode ? 'bg-green-500' : 'bg-gray-300'}`}
                 >
-                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isPreviewMode ? 'translate-x-6' : 'translate-x-1'}`} />
+                  <span className={`inline-block h-3 w-3 sm:h-4 sm:w-4 transform rounded-full bg-white transition-transform ${isPreviewMode ? 'translate-x-5 sm:translate-x-6' : 'translate-x-1'}`} />
                 </button>
               </div>
               <p className={`text-xs mt-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
@@ -1928,9 +1957,9 @@ const ResumeBuilder = () => {
             </div>
             
             {/* Template Selection */}
-            <div className="mb-6">
+            <div className="mb-4 sm:mb-6">
               <h3 className={`text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Select Template</h3>
-              <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
+              <div className="grid grid-cols-2 gap-2 max-h-40 sm:max-h-48 overflow-y-auto">
                 {templates.map(template => (
                   <button
                     key={template.id}
@@ -1941,52 +1970,48 @@ const ResumeBuilder = () => {
                         : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
                     }`}
                   >
-                    <div className="font-medium">{template.name}</div>
-                    <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{template.description}</div>
+                    <div className="font-medium truncate">{template.name}</div>
+                    <div className={`text-xs truncate ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{template.description}</div>
                   </button>
                 ))}
               </div>
             </div>
             
             {/* Section Navigation - Hide in preview mode */}
-            {!isPreviewMode && (
-              <>
-                <div className="mb-6">
-                  <h3 className={`text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Sections</h3>
-                  <div className="space-y-1">
-                    {sections.map(section => (
-                      <button
-                        key={section.id}
-                        onClick={() => setActiveSection(section.id)}
-                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
-                          activeSection === section.id
-                            ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300'
-                            : 'hover:bg-gray-100 dark:hover:bg-gray-700'
-                        }`}
-                      >
-                        {section.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                
-                {/* Generate Button */}
-                <button
-                  onClick={generatePDF}
-                  disabled={isGenerating || (!formData.fullName && !isPreviewMode)}
-                  className="w-full py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:bg-gray-300 dark:disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors"
-                >
-                  {isGenerating ? 'Generating PDF...' : 'Download PDF'}
-                </button>
-              </>
-            )}
+            <div className="hidden lg:block mb-6">
+              <h3 className={`text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Sections</h3>
+              <div className="space-y-1">
+                {sections.map(section => (
+                  <button
+                    key={section.id}
+                    onClick={() => setActiveSection(section.id)}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                      activeSection === section.id
+                        ? 'bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300'
+                        : 'hover:bg-gray-100 dark:hover:bg-gray-700'
+                    }`}
+                  >
+                    {section.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            
+            {/* Generate Button */}
+            <button
+              onClick={generatePDF}
+              disabled={isGenerating || (!formData.fullName && !isPreviewMode)}
+              className="w-full py-2 sm:py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:bg-gray-300 dark:disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors text-sm sm:text-base"
+            >
+              {isGenerating ? 'Generating PDF...' : 'Download PDF'}
+            </button>
             
             {/* Download button for preview mode */}
             {isPreviewMode && (
               <button
                 onClick={generatePDF}
                 disabled={isGenerating}
-                className="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-300 transition-colors"
+                className="w-full mt-3 py-2 sm:py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-300 transition-colors text-sm sm:text-base"
               >
                 {isGenerating ? 'Generating PDF...' : 'Download Sample PDF'}
               </button>
@@ -1997,14 +2022,14 @@ const ResumeBuilder = () => {
           <div className="lg:col-span-2">
             {/* Show form in edit mode, preview in preview mode */}
             {!isPreviewMode && (
-              <div className={`rounded-xl shadow-sm p-6 mb-6 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+              <div className={`rounded-xl shadow-sm p-3 sm:p-6 mb-4 sm:mb-6 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
                 {renderSection()}
               </div>
             )}
             
             {/* Resume Preview */}
-            <div className="mt-8">
-              <h3 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+            <div className="mt-4 sm:mt-8">
+              <h3 className={`text-base sm:text-lg font-semibold mb-3 sm:mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 {isPreviewMode ? 'Template Preview (Sample Data)' : 'Resume Preview'}
               </h3>
               {renderResumePreview()}

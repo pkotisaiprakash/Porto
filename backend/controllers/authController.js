@@ -269,7 +269,7 @@ exports.forgotPassword = async (req, res) => {
     
     console.log(`Password reset requested for email: ${email}`);
     console.log(`Reset URL: ${resetUrl}`);
-
+    
     res.status(200).json({
       success: true,
       message: 'If an account with that email exists, a password reset link has been sent.'
@@ -297,13 +297,17 @@ exports.resetPassword = async (req, res) => {
     const user = await User.findOne({
       resetPasswordToken,
       resetPasswordExpire: { $gt: Date.now() }
+      
     });
-
+    
     if (!user) {
+      
       return res.status(400).json({
         success: false,
         message: 'Invalid or expired reset token'
+        
       });
+      
     }
 
     // Set new password
@@ -391,6 +395,86 @@ exports.purchasePremium = async (req, res) => {
       success: false,
       message: 'Server error'
     });
+  }
+};
+
+// @desc    Google OAuth - Initiate authentication
+// @route   GET /api/auth/google
+// @access  Public
+exports.googleAuth = (req, res, next) => {
+  const passport = require('passport');
+  const GoogleStrategy = require('passport-google-oauth20').Strategy;
+  
+  // Configure passport Google strategy if not already configured
+  if (!passport._strategy('google')) {
+    passport.use(new GoogleStrategy({
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: process.env.GOOGLE_CALLBACK_URL || '/api/auth/google/callback'
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      try {
+        // Check if user already exists
+        let user = await User.findOne({ email: profile.emails[0].value });
+        
+        if (user) {
+          // Update avatar if not set
+          if (!user.avatar && profile.photos && profile.photos[0]) {
+            user.avatar = profile.photos[0].value;
+            await user.save();
+          }
+          return done(null, user);
+        }
+        
+        // Generate username from Google profile
+        const baseUsername = profile.displayName.replace(/\s+/g, '').toLowerCase();
+        let username = baseUsername;
+        let counter = 1;
+        
+        // Ensure unique username
+        while (await User.findOne({ username })) {
+          username = `${baseUsername}${counter}`;
+          counter++;
+        }
+        
+        // Create new user
+        user = await User.create({
+          name: profile.displayName,
+          email: profile.emails[0].value,
+          username: username,
+          password: crypto.randomBytes(20).toString('hex'), // Random password for Google users
+          avatar: profile.photos && profile.photos[0] ? profile.photos[0].value : '',
+          role: profile.emails[0].value === 'admin@portfolio.com' ? 'admin' : 'user'
+        });
+        
+        return done(null, user);
+      } catch (error) {
+        return done(error, null);
+      }
+    }));
+  }
+  
+  passport.authenticate('google', { scope: ['profile', 'email'] })(req, res, next);
+};
+
+// @desc    Google OAuth callback
+// @route   GET /api/auth/google/callback
+// @access  Public
+exports.googleCallback = async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/login?error=google_auth_failed`);
+    }
+    
+    // Generate JWT token
+    const token = generateToken(req.user._id);
+    
+    // Redirect to frontend with token
+    const redirectUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/auth/callback?token=${token}`;
+    res.redirect(redirectUrl);
+  } catch (error) {
+    console.error('Google callback error:', error);
+    res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/login?error=google_auth_failed`);
   }
 };
 

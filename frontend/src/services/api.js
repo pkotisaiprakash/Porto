@@ -75,7 +75,12 @@ export const authAPI = {
   forgotPassword: (email) => api.post('/auth/forgot-password', email),
   resetPassword: (resetToken, password) => api.post(`/auth/reset-password/${resetToken}`, { password }),
   purchasePremium: (paymentId, plan = 'monthly') => api.post('/auth/purchase-premium', { paymentId, plan, amount: plan === 'yearly' ? 99 : 9 }),
-  updateProfile: (data) => api.put('/auth/update-profile', data)
+  updateProfile: (data) => api.put('/auth/update-profile', data),
+  // Google OAuth callback handler
+  handleGoogleCallback: (token) => {
+    localStorage.setItem('token', token);
+    return Promise.resolve({ data: { success: true } });
+  }
 };
 
 // Template API

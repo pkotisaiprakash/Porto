@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const multer = require('multer');
+const passport = require('passport');
 const path = require('path');
 const fs = require('fs');
 const config = require('./config/db');
@@ -25,6 +26,9 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
+
+// Initialize Passport
+app.use(passport.initialize());
 
 // Connect to MongoDB
 mongoose.connect(config.mongoURI)

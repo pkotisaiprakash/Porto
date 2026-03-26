@@ -37,9 +37,7 @@ export const AuthProvider = ({ children }) => {
   const register = async (data) => {
     try {
       setError(null);
-      console.log('Registering with:', data);
       const response = await authAPI.register(data);
-      console.log('Register response:', response.data);
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
       setUser(response.data.user);
@@ -55,9 +53,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (data) => {
     try {
       setError(null);
-      console.log('Logging in with:', data);
       const response = await authAPI.login(data);
-      console.log('Login response:', response.data);
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
       setUser(response.data.user);
