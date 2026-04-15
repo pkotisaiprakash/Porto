@@ -3,22 +3,139 @@ const crypto = require('crypto');
 const User = require('../models/User');
 const Portfolio = require('../models/Portfolio');
 const config = require('../config/db');
+const { sendOTPEmail, sendPasswordResetEmail } = require('../utils/emailService');
 
-// Generate JWT Token
 const generateToken = (id) => {
   return jwt.sign({ id }, config.jwtSecret, {
     expiresIn: config.jwtExpire
   });
 };
 
-// @desc    Update user profile
-// @route   PUT /api/auth/update-profile
-// @access  Private
+const pendingRegistrations = new Map();
+
+exports.sendRegisterOTP = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is required'
+      });
+    }
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email already registered'
+      });
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpHash = crypto.createHash('sha256').update(otp).digest('hex');
+    const otpExpire = Date.now() + 10 * 60 * 1000;
+
+    pendingRegistrations.set(email, {
+      otp: otpHash,
+      otpExpire,
+      email,
+      createdAt: Date.now()
+    });
+
+    await sendOTPEmail(email, otp);
+
+    res.json({
+      success: true,
+      message: 'OTP sent to your email'
+    });
+  } catch (error) {
+    console.error('Send register OTP error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
+  }
+};
+
+exports.verifyRegisterOTP = async (req, res) => {
+  try {
+    const { email, otp, name, username, password } = req.body;
+
+    if (!email || !otp) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email and OTP are required'
+      });
+    }
+
+    const pending = pendingRegistrations.get(email);
+    if (!pending) {
+      return res.status(400).json({
+        success: false,
+        message: 'No OTP request found. Please request OTP first'
+      });
+    }
+
+    const otpHash = crypto.createHash('sha256').update(otp).digest('hex');
+    if (pending.otp !== otpHash || pending.otpExpire < Date.now()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid or expired OTP'
+      });
+    }
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      pendingRegistrations.delete(email);
+      return res.status(400).json({
+        success: false,
+        message: 'Email already registered'
+      });
+    }
+
+    const generatedUsername = username || (name || email).replace(/\s+/g, '').toLowerCase();
+
+    const user = await User.create({
+      name: name || email.split('@')[0],
+      email,
+      username: generatedUsername,
+      password,
+      role: email === 'admin@portfolio.com' ? 'admin' : 'user',
+      isEmailVerified: true
+    });
+
+    pendingRegistrations.delete(email);
+
+    const token = generateToken(user._id);
+
+    res.status(201).json({
+      success: true,
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        username: user.username,
+        role: user.role,
+        isEmailVerified: user.isEmailVerified,
+        isPremium: user.isPremium,
+        memberSince: user.memberSince
+      }
+    });
+  } catch (error) {
+    console.error('Verify register OTP error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
+  }
+};
+
 exports.updateProfile = async (req, res) => {
   try {
     const { name, username, avatar } = req.body;
 
-    // Find user
     const user = await User.findById(req.user.id);
 
     if (!user) {
@@ -28,7 +145,6 @@ exports.updateProfile = async (req, res) => {
       });
     }
 
-    // Check if username is being changed and if it's already taken
     if (username && username !== user.username) {
       const existingUser = await User.findOne({ username });
       if (existingUser) {
@@ -40,7 +156,6 @@ exports.updateProfile = async (req, res) => {
       user.username = username;
     }
 
-    // Update fields
     if (name) user.name = name;
     if (avatar) user.avatar = avatar;
 
@@ -69,17 +184,12 @@ exports.updateProfile = async (req, res) => {
   }
 };
 
-// @desc    Register user
-// @route   POST /api/auth/register
-// @access  Public
 exports.register = async (req, res) => {
   try {
     const { name, email, username, password } = req.body;
 
-    // Generate username from name by trimming all spaces
     const generatedUsername = username || name.replace(/\s+/g, '').toLowerCase();
 
-    // Check if user exists
     const existingUser = await User.findOne({
       $or: [{ email }, { username: generatedUsername }]
     });
@@ -93,16 +203,15 @@ exports.register = async (req, res) => {
       });
     }
 
-    // Create user
     const user = await User.create({
       name,
       email,
       username: generatedUsername,
       password,
-      role: email === 'admin@portfolio.com' ? 'admin' : 'user'
+      role: email === 'admin@portfolio.com' ? 'admin' : 'user',
+      isEmailVerified: false
     });
 
-    // Generate token
     const token = generateToken(user._id);
 
     res.status(201).json({
@@ -114,6 +223,7 @@ exports.register = async (req, res) => {
         email: user.email,
         username: user.username,
         role: user.role,
+        isEmailVerified: user.isEmailVerified,
         isPremium: user.isPremium,
         memberSince: user.memberSince
       }
@@ -127,14 +237,95 @@ exports.register = async (req, res) => {
   }
 };
 
-// @desc    Login user
-// @route   POST /api/auth/login
-// @access  Public
+exports.sendOTP = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is required'
+      });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: 'No user found with this email'
+      });
+    }
+
+    const otp = user.generateOTP();
+    await user.save();
+
+    await sendOTPEmail(email, otp);
+
+    res.json({
+      success: true,
+      message: 'OTP sent to your email'
+    });
+  } catch (error) {
+    console.error('Send OTP error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
+  }
+};
+
+exports.verifyOTP = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+
+    if (!email || !otp) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email and OTP are required'
+      });
+    }
+
+    const otpHash = crypto
+      .createHash('sha256')
+      .update(otp)
+      .digest('hex');
+
+    const user = await User.findOne({
+      email,
+      otp: otpHash,
+      otpExpire: { $gt: Date.now() }
+    }).select('+otp +otpExpire');
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid or expired OTP'
+      });
+    }
+
+    user.isEmailVerified = true;
+    user.otp = undefined;
+    user.otpExpire = undefined;
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'Email verified successfully'
+    });
+  } catch (error) {
+    console.error('Verify OTP error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
+  }
+};
+
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Validate input
     if (!email || !password) {
       return res.status(400).json({
         success: false,
@@ -142,7 +333,6 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Find user and include password
     const user = await User.findOne({ email }).select('+password');
 
     if (!user) {
@@ -152,7 +342,6 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Check password
     const isMatch = await user.comparePassword(password);
 
     if (!isMatch) {
@@ -162,7 +351,6 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Generate token
     const token = generateToken(user._id);
 
     res.json({
@@ -174,6 +362,7 @@ exports.login = async (req, res) => {
         email: user.email,
         username: user.username,
         role: user.role,
+        isEmailVerified: user.isEmailVerified,
         isPremium: user.isPremium,
         memberSince: user.memberSince
       }
@@ -187,14 +376,10 @@ exports.login = async (req, res) => {
   }
 };
 
-// @desc    Get current user
-// @route   GET /api/auth/me
-// @access  Private
 exports.getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
 
-    // Get user's portfolio
     const portfolio = await Portfolio.findOne({ userId: req.user.id });
 
     res.json({
@@ -206,6 +391,7 @@ exports.getMe = async (req, res) => {
         username: user.username,
         role: user.role,
         avatar: user.avatar,
+        isEmailVerified: user.isEmailVerified,
         isPremium: user.isPremium,
         premiumExpiryDate: user.premiumExpiryDate,
         memberSince: user.memberSince
@@ -225,9 +411,6 @@ exports.getMe = async (req, res) => {
   }
 };
 
-// @desc    Logout user
-// @route   POST /api/auth/logout
-// @access  Private
 exports.logout = async (req, res) => {
   res.json({
     success: true,
@@ -235,9 +418,6 @@ exports.logout = async (req, res) => {
   });
 };
 
-// @desc    Forgot password
-// @route   POST /api/auth/forgot-password
-// @access  Public
 exports.forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
@@ -258,18 +438,13 @@ exports.forgotPassword = async (req, res) => {
       });
     }
 
-    // Get Reset Password Token
     const resetToken = user.getResetPasswordToken();
-
     await user.save();
 
-    // In production, you would send an email with the reset link
-    // For now, we'll log the reset token (in development)
-    const resetUrl = `http://localhost:5173/reset-password/${resetToken}`;
+    const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password/${resetToken}`;
     
-    console.log(`Password reset requested for email: ${email}`);
-    console.log(`Reset URL: ${resetUrl}`);
-    
+    await sendPasswordResetEmail(email, resetUrl);
+
     res.status(200).json({
       success: true,
       message: 'If an account with that email exists, a password reset link has been sent.'
@@ -283,12 +458,8 @@ exports.forgotPassword = async (req, res) => {
   }
 };
 
-// @desc    Reset password
-// @route   POST /api/auth/reset-password/:resetToken
-// @access  Public
 exports.resetPassword = async (req, res) => {
   try {
-    // Get hashed token
     const resetPasswordToken = crypto
       .createHash('sha256')
       .update(req.params.resetToken)
@@ -297,20 +468,15 @@ exports.resetPassword = async (req, res) => {
     const user = await User.findOne({
       resetPasswordToken,
       resetPasswordExpire: { $gt: Date.now() }
-      
     });
     
     if (!user) {
-      
       return res.status(400).json({
         success: false,
         message: 'Invalid or expired reset token'
-        
       });
-      
     }
 
-    // Set new password
     user.password = req.body.password;
     user.resetPasswordToken = undefined;
     user.resetPasswordExpire = undefined;
@@ -330,14 +496,10 @@ exports.resetPassword = async (req, res) => {
   }
 };
 
-// @desc    Purchase premium access
-// @route   POST /api/auth/purchase-premium
-// @access  Private
 exports.purchasePremium = async (req, res) => {
   try {
-    const { paymentId, plan } = req.body; // plan can be 'monthly' or 'yearly'
+    const { paymentId, plan } = req.body;
     
-    // Validate payment amount
     const monthlyPrice = 9;
     const yearlyPrice = 99;
     
@@ -346,13 +508,12 @@ exports.purchasePremium = async (req, res) => {
     
     if (plan === 'yearly') {
       amount = yearlyPrice;
-      durationDays = 365; // 1 year
+      durationDays = 365;
     } else {
       amount = monthlyPrice;
-      durationDays = 30; // 1 month default
+      durationDays = 30;
     }
 
-    // Find user
     const user = await User.findById(req.user.id);
 
     if (!user) {
@@ -362,13 +523,10 @@ exports.purchasePremium = async (req, res) => {
       });
     }
 
-    // Update user to premium (extend by selected duration if already premium)
     const now = new Date();
     if (user.isPremium && user.premiumExpiryDate && user.premiumExpiryDate > now) {
-      // Extend existing premium
       user.premiumExpiryDate = new Date(user.premiumExpiryDate.getTime() + durationDays * 24 * 60 * 60 * 1000);
     } else {
-      // Activate new premium
       user.isPremium = true;
       user.premiumExpiryDate = new Date(now.getTime() + durationDays * 24 * 60 * 60 * 1000);
     }
@@ -398,78 +556,33 @@ exports.purchasePremium = async (req, res) => {
   }
 };
 
-// @desc    Google OAuth - Initiate authentication
-// @route   GET /api/auth/google
-// @access  Public
 exports.googleAuth = (req, res, next) => {
-  const passport = require('passport');
-  const GoogleStrategy = require('passport-google-oauth20').Strategy;
-  
-  // Configure passport Google strategy if not already configured
-  if (!passport._strategy('google')) {
-    passport.use(new GoogleStrategy({
-      clientID: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: process.env.GOOGLE_CALLBACK_URL || '/api/auth/google/callback'
-    },
-    async (accessToken, refreshToken, profile, done) => {
-      try {
-        // Check if user already exists
-        let user = await User.findOne({ email: profile.emails[0].value });
-        
-        if (user) {
-          // Update avatar if not set
-          if (!user.avatar && profile.photos && profile.photos[0]) {
-            user.avatar = profile.photos[0].value;
-            await user.save();
-          }
-          return done(null, user);
-        }
-        
-        // Generate username from Google profile
-        const baseUsername = profile.displayName.replace(/\s+/g, '').toLowerCase();
-        let username = baseUsername;
-        let counter = 1;
-        
-        // Ensure unique username
-        while (await User.findOne({ username })) {
-          username = `${baseUsername}${counter}`;
-          counter++;
-        }
-        
-        // Create new user
-        user = await User.create({
-          name: profile.displayName,
-          email: profile.emails[0].value,
-          username: username,
-          password: crypto.randomBytes(20).toString('hex'), // Random password for Google users
-          avatar: profile.photos && profile.photos[0] ? profile.photos[0].value : '',
-          role: profile.emails[0].value === 'admin@portfolio.com' ? 'admin' : 'user'
-        });
-        
-        return done(null, user);
-      } catch (error) {
-        return done(error, null);
-      }
-    }));
+  console.log('Google Auth: Initiating OAuth flow');
+  if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+    console.error('Google OAuth not configured: GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET is missing');
+    return res.status(503).json({
+      success: false,
+      message: 'Google OAuth is not configured. Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in .env file.'
+    });
   }
-  
+
+  const passport = require('passport');
   passport.authenticate('google', { scope: ['profile', 'email'] })(req, res, next);
 };
 
-// @desc    Google OAuth callback
-// @route   GET /api/auth/google/callback
-// @access  Public
 exports.googleCallback = async (req, res) => {
   try {
+    console.log('Google Callback: req.user:', req.user);
+    console.log('Google Callback: req.query:', req.query);
+    
     if (!req.user) {
+      console.error('Google Callback: No user found after OAuth');
       return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/login?error=google_auth_failed`);
     }
     
-    // Generate JWT token
     const token = generateToken(req.user._id);
+    console.log('Google Callback: Generated token for user:', req.user.email);
     
-    // Redirect to frontend with token
     const redirectUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/auth/callback?token=${token}`;
     res.redirect(redirectUrl);
   } catch (error) {
@@ -478,3 +591,130 @@ exports.googleCallback = async (req, res) => {
   }
 };
 
+exports.getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().sort({ createdAt: -1 });
+    
+    res.json({
+      success: true,
+      users: users.map(user => ({
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        username: user.username,
+        role: user.role,
+        avatar: user.avatar,
+        isEmailVerified: user.isEmailVerified,
+        isPremium: user.isPremium,
+        memberSince: user.memberSince
+      }))
+    });
+  } catch (error) {
+    console.error('Get all users error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
+  }
+};
+
+exports.updateUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { name, email, username, role, isPremium } = req.body;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    if (email && email !== user.email) {
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        return res.status(400).json({
+          success: false,
+          message: 'Email already in use'
+        });
+      }
+      user.email = email;
+    }
+
+    if (username && username !== user.username) {
+      const existingUser = await User.findOne({ username });
+      if (existingUser) {
+        return res.status(400).json({
+          success: false,
+          message: 'Username already in use'
+        });
+      }
+      user.username = username;
+    }
+
+    if (name) user.name = name;
+    if (role && req.user.role === 'admin') user.role = role;
+    if (typeof isPremium === 'boolean') user.isPremium = isPremium;
+
+    await user.save();
+
+    res.json({
+      success: true,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        username: user.username,
+        role: user.role,
+        avatar: user.avatar,
+        isEmailVerified: user.isEmailVerified,
+        isPremium: user.isPremium,
+        memberSince: user.memberSince
+      }
+    });
+  } catch (error) {
+    console.error('Update user error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
+  }
+};
+
+exports.deleteUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    if (req.user.id === userId) {
+      return res.status(400).json({
+        success: false,
+        message: 'You cannot delete your own account'
+      });
+    }
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    await Portfolio.deleteMany({ userId });
+    await user.deleteOne();
+
+    res.json({
+      success: true,
+      message: 'User deleted successfully'
+    });
+  } catch (error) {
+    console.error('Delete user error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
+  }
+};

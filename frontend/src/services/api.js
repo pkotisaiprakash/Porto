@@ -1,27 +1,20 @@
 import axios from 'axios';
 
-// Read baseURL from Vite environment variable so production builds
-// point at the correct backend service.  VITE_API_URL should include the
-// `/api` segment (e.g. https://porto-okmw.onrender.com/api) but we
-// normalize in case the trailing `/api` is accidentally omitted.
 let API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 if (!API_URL.endsWith('/api')) {
   API_URL = API_URL.replace(/\/+$/, '') + '/api';
 }
 
-// helpful debug information when the app boots
 console.log('API URL:', API_URL);
 
-// Create axios instance
 const api = axios.create({
   baseURL: API_URL,
-  withCredentials: true,            // keep cookie/session support if needed
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json'
   }
 });
 
-// Create file upload axios instance (for resume uploads)
 const fileApi = axios.create({
   baseURL: API_URL,
   headers: {
@@ -29,7 +22,6 @@ const fileApi = axios.create({
   }
 });
 
-// Add token to requests if available
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -41,7 +33,6 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Add token to file upload requests
 fileApi.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -53,7 +44,6 @@ fileApi.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Handle response errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -62,11 +52,13 @@ api.interceptors.response.use(
       localStorage.removeItem('user');
       window.location.href = '/login';
     }
+    if (error.response?.status === 403) {
+      window.location.href = '/403';
+    }
     return Promise.reject(error);
   }
 );
 
-// Auth API
 export const authAPI = {
   register: (data) => api.post('/auth/register', data),
   login: (data) => api.post('/auth/login', data),
@@ -76,14 +68,21 @@ export const authAPI = {
   resetPassword: (resetToken, password) => api.post(`/auth/reset-password/${resetToken}`, { password }),
   purchasePremium: (paymentId, plan = 'monthly') => api.post('/auth/purchase-premium', { paymentId, plan, amount: plan === 'yearly' ? 99 : 9 }),
   updateProfile: (data) => api.put('/auth/update-profile', data),
-  // Google OAuth callback handler
+  updateAvatar: (avatarUrl) => api.put('/auth/update-avatar', { avatar: avatarUrl }),
+  sendOTP: (email) => api.post('/auth/send-otp', email),
+  verifyOTP: (email, otp) => api.post('/auth/verify-otp', { email, otp }),
+  getAllUsers: () => api.get('/auth/users'),
+  updateUser: (userId, data) => api.put(`/auth/users/${userId}`, data),
+  deleteUser: (userId) => api.delete(`/auth/users/${userId}`),
   handleGoogleCallback: (token) => {
     localStorage.setItem('token', token);
     return Promise.resolve({ data: { success: true } });
+  },
+  googleAuth: () => {
+    window.location.href = `${API_URL}/auth/google`;
   }
 };
 
-// Template API
 export const templateAPI = {
   getAll: () => api.get('/templates'),
   getAdmin: () => api.get('/templates/admin/all'),
@@ -92,11 +91,9 @@ export const templateAPI = {
   update: (id, data) => api.put(`/templates/${id}`, data),
   delete: (id) => api.delete(`/templates/${id}`),
   toggle: (id) => api.put(`/templates/${id}/toggle`),
-  // admin helper, used in templates page to load new examples
   reseed: () => api.post('/admin/reseed-templates')
 };
 
-// Portfolio API
 export const portfolioAPI = {
   get: () => api.get('/portfolio'),
   create: (data) => api.post('/portfolio', data),

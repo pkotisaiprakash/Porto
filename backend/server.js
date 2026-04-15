@@ -1,36 +1,124 @@
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
+
+console.log('GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID ? 'SET' : 'NOT SET');
+console.log('GOOGLE_CLIENT_SECRET:', process.env.GOOGLE_CLIENT_SECRET ? 'SET' : 'NOT SET');
+console.log('SMTP_USERNAME:', process.env.SMTP_USERNAME ? 'SET' : 'NOT SET');
+
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const multer = require('multer');
 const passport = require('passport');
-const path = require('path');
+const session = require('express-session');
 const fs = require('fs');
+const crypto = require('crypto');
+
 const config = require('./config/db');
 const Template = require('./models/Template');
 const Portfolio = require('./models/Portfolio');
+const User = require('./models/User');
 const { protect } = require('./middleware/authMiddleware');
 const resumeParser = require('./utils/resumeParser');
 
-// Route imports
 const authRoutes = require('./routes/authRoutes');
 const templateRoutes = require('./routes/templateRoutes');
 const portfolioRoutes = require('./routes/portfolioRoutes');
 
 const app = express();
 
-// Middleware
 app.use(cors({
-  origin: true,
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
 
-// Initialize Passport
-app.use(passport.initialize());
+app.use(session({
+  secret: process.env.JWT_SECRET || 'session-secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: process.env.NODE_ENV === 'production', maxAge: 24 * 60 * 60 * 1000 }
+}));
 
-// Connect to MongoDB
+app.use(passport.initialize());
+app.use(passport.session());
+
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+  const GoogleStrategy = require('passport-google-oauth20').Strategy;
+  
+  passport.use(new GoogleStrategy({
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: process.env.GOOGLE_CALLBACK_URL || '/api/auth/google/callback'
+  },
+  async (accessToken, refreshToken, profile, done) => {
+    try {
+      console.log('Google OAuth callback - Profile:', JSON.stringify(profile, null, 2));
+      
+      const email = profile.emails && profile.emails[0] ? profile.emails[0].value : null;
+      if (!email) {
+        console.error('Google OAuth: No email in profile');
+        return done(new Error('No email provided by Google account'), null);
+      }
+      
+      let user = await User.findOne({ email });
+      
+      if (user) {
+        if (!user.avatar && profile.photos && profile.photos[0]) {
+          user.avatar = profile.photos[0].value;
+          await user.save();
+        }
+        console.log('Google OAuth: Found existing user:', user.email);
+        return done(null, user);
+      }
+      
+      const baseUsername = (profile.displayName || 'user').replace(/\s+/g, '').toLowerCase();
+      let username = baseUsername;
+      let counter = 1;
+      
+      while (await User.findOne({ username })) {
+        username = `${baseUsername}${counter}`;
+        counter++;
+      }
+      
+      user = await User.create({
+        name: profile.displayName || 'Google User',
+        email: email,
+        username: username,
+        password: crypto.randomBytes(20).toString('hex'),
+        avatar: profile.photos && profile.photos[0] ? profile.photos[0].value : '',
+        role: email === 'admin@portfolio.com' ? 'admin' : 'user',
+        isEmailVerified: true
+      });
+      
+      console.log('Google OAuth: Created new user:', user.email);
+      return done(null, user);
+    } catch (error) {
+      console.error('Google OAuth error:', error);
+      return done(error, null);
+    }
+  }));
+  
+  console.log('Google OAuth configured successfully');
+} else {
+  console.log('Google OAuth not configured - GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET not set');
+}
+
+passport.serializeUser((user, done) => {
+  done(null, user.id);
+});
+
+passport.deserializeUser(async (id, done) => {
+  try {
+    const user = await User.findById(id);
+    done(null, user);
+  } catch (error) {
+    done(error, null);
+  }
+});
+
 mongoose.connect(config.mongoURI)
   .then(() => {
     console.log('MongoDB connected successfully');
@@ -38,33 +126,25 @@ mongoose.connect(config.mongoURI)
   })
   .catch(err => console.error('MongoDB connection error:', err));
 
-// Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/templates', templateRoutes);
 app.use('/api/portfolio', portfolioRoutes);
 
-// uploads directory is created by upload middleware when needed
 const upload = require('./middleware/uploadMiddleware');
 
-// static path for uploaded files (same directory used by uploadMiddleware)
 const uploadsDir = path.join(__dirname, 'uploads');
 app.use('/uploads', express.static(uploadsDir));
 
 
-// Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Portfolio Builder API is running' });
 });
 
-// Admin: Force reseed templates
 app.post('/api/admin/reseed-templates', async (req, res) => {
   try {
-    // Delete existing templates
     await Template.deleteMany({});
     
-    // Re-seed templates
     const defaultTemplates = [
-      // Free Templates (First 5)
       {
         name: 'Minimal',
         description: 'A clean, minimalist template perfect for showcasing your core skills and projects with elegant simplicity.',
@@ -110,7 +190,6 @@ app.post('/api/admin/reseed-templates', async (req, res) => {
         isPremium: false,
         layoutConfig: { headerStyle: 'simple', heroStyle: 'basic', projectsLayout: 'grid', font: 'Inter' }
       },
-      // Premium Templates
       {
         name: 'Neon Pro',
         description: 'A cyberpunk-inspired premium template with glowing neon effects, perfect for developers and tech enthusiasts.',
@@ -203,12 +282,10 @@ app.post('/api/admin/reseed-templates', async (req, res) => {
   }
 });
 
-// Seed default templates
 async function seedTemplates() {
   const count = await Template.countDocuments();
   if (count === 0) {
     const defaultTemplates = [
-      // Free Templates (First 5)
       {
         name: 'Minimal',
         description: 'A clean, minimalist template perfect for showcasing your core skills and projects with elegant simplicity.',
@@ -254,7 +331,6 @@ async function seedTemplates() {
         isPremium: false,
         layoutConfig: { headerStyle: 'simple', heroStyle: 'basic', projectsLayout: 'grid', font: 'Inter' }
       },
-      // Premium Templates
       {
         name: 'Neon Pro',
         description: 'A cyberpunk-inspired premium template with glowing neon effects, perfect for developers and tech enthusiasts.',
@@ -343,7 +419,6 @@ async function seedTemplates() {
   }
 }
 
-// Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({
@@ -353,7 +428,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-// 404 handler
 app.use((req, res) => {
   res.status(404).json({
     success: false,

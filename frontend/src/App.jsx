@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, useNavigate, useSearchParams } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useNavigate, useSearchParams, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { PortfolioProvider } from './context/PortfolioContext';
 import { ThemeProvider } from './context/ThemeContext';
@@ -18,6 +18,9 @@ import ResumeBuilder from './pages/ResumeBuilder';
 import Profile from './pages/Profile';
 import Premium from './pages/Premium';
 import AuthCallback from './pages/AuthCallback';
+import NotFound from './pages/NotFound';
+import Forbidden from './pages/Forbidden';
+import VerifyOTP from './pages/VerifyOTP';
 
 function App() {
   return (
@@ -28,7 +31,6 @@ function App() {
             <div className="min-h-screen bg-gray-900 text-gray-100">
               <Navbar />
               <Routes>
-                {/* Public Routes - Templates accessible without login */}
                 <Route path="/templates" element={<Templates />} />
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<Login />} />
@@ -38,8 +40,12 @@ function App() {
                 <Route path="/u/:username" element={<PublicPortfolio />} />
                 <Route path="/premium" element={<Premium />} />
                 <Route path="/auth/callback" element={<AuthCallback />} />
+                <Route path="/verify-email" element={
+                  <ProtectedRoute>
+                    <VerifyOTP />
+                  </ProtectedRoute>
+                } />
                 
-                {/* Protected Routes */}
                 <Route path="/dashboard" element={
                   <ProtectedRoute>
                     <Dashboard />
@@ -66,12 +72,14 @@ function App() {
                   </ProtectedRoute>
                 } />
                 
-                {/* Admin Routes */}
                 <Route path="/admin" element={
                   <ProtectedRoute adminOnly>
                     <AdminDashboard />
                   </ProtectedRoute>
                 } />
+                
+                <Route path="/403" element={<Forbidden />} />
+                <Route path="*" element={<NotFound />} />
               </Routes>
             </div>
           </Router>

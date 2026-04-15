@@ -14,6 +14,10 @@ const Profile = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   const [usernameError, setUsernameError] = useState('');
+  const isFormValid = formData.name.trim() !== '' && formData.username.trim() !== '' && !usernameError;
+  const [avatarLoading, setAvatarLoading] = useState(false);
+  const [showAvatarInput, setShowAvatarInput] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState('');
   useDocumentTitle('Edit Profile');
 
   useEffect(() => {
@@ -27,11 +31,20 @@ const Profile = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
     
-    // Clear username error when user starts typing
     if (name === 'username') {
-      setUsernameError('');
+      const trimmed = value.trim();
+      const isValid = /^[a-zA-Z_-]+$/.test(trimmed);
+      
+      if (!isValid && trimmed !== '') {
+        setUsernameError('Username can only contain letters, underscores, and hyphens');
+      } else {
+        setUsernameError('');
+      }
+      
+      setFormData(prev => ({ ...prev, [name]: trimmed }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
     }
   };
 
@@ -65,6 +78,27 @@ const Profile = () => {
       month: 'long',
       day: 'numeric'
     });
+  };
+
+  const handleAvatarSave = async () => {
+    setAvatarLoading(true);
+    try {
+      const response = await authAPI.updateAvatar(avatarUrl);
+      if (response.data.success) {
+        updateUser(response.data.user);
+        setShowAvatarInput(false);
+        setAvatarUrl('');
+      }
+    } catch (err) {
+      console.error('Error updating avatar:', err);
+    } finally {
+      setAvatarLoading(false);
+    }
+  };
+
+  const handleCancelAvatar = () => {
+    setShowAvatarInput(false);
+    setAvatarUrl('');
   };
 
   return (
@@ -105,8 +139,42 @@ const Profile = () => {
                 </div>
               )}
               <div className="ml-4">
-                <p className="font-medium">{user?.name}</p>
-                <p className="text-sm text-gray-400">{user?.email}</p>
+                {!showAvatarInput ? (
+                  <button
+                    type="button"
+                    onClick={() => { setShowAvatarInput(true); setAvatarUrl(user?.avatar || ''); }}
+                    className="text-sm text-cyan-400 hover:text-cyan-300"
+                  >
+                    Edit Photo
+                  </button>
+                ) : (
+                  <div className="flex flex-col gap-2">
+                    <input
+                      type="text"
+                      value={avatarUrl}
+                      onChange={(e) => setAvatarUrl(e.target.value)}
+                      placeholder="Enter avatar URL"
+                      className="px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-100 text-sm"
+                    />
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={handleAvatarSave}
+                        disabled={avatarLoading}
+                        className="px-3 py-1 bg-cyan-500 text-white rounded-lg text-sm hover:bg-cyan-600 disabled:opacity-50"
+                      >
+                        {avatarLoading ? 'Saving...' : 'Save'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleCancelAvatar}
+                        className="px-3 py-1 bg-gray-600 text-white rounded-lg text-sm hover:bg-gray-500"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -149,14 +217,14 @@ const Profile = () => {
               <p className="mt-2 text-sm text-gray-500">Your portfolio URL: /u/{formData.username || 'username'}</p>
             </div>
 
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-400 hover:to-purple-500 text-white font-medium py-3 px-6 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? 'Saving...' : 'Save Changes'}
-            </button>
+{/* Submit Button */}
+              <button
+                type="submit"
+                disabled={loading || !isFormValid}
+                className="w-full bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-400 hover:to-purple-500 text-white font-medium py-3 px-6 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? 'Saving...' : 'Save Changes'}
+              </button>
           </form>
         </div>
 

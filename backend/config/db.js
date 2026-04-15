@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 module.exports = {
   mongoURI: process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/portfolio-builder',
   jwtSecret: process.env.JWT_SECRET || 'your-super-secret-key-change-in-production',

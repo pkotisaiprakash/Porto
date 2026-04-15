@@ -1,0 +1,15 @@
+# Local env files
+Uploadenv_render.md
+.env
+.env.local
+.env.*.local
+
+# Dependencies
+node_modules/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
