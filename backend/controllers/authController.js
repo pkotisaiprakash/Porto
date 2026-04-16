@@ -2,8 +2,9 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const User = require('../models/User');
 const Portfolio = require('../models/Portfolio');
+const MailHistory = require('../models/MailHistory');
 const config = require('../config/db');
-const { sendOTPEmail, sendPasswordResetEmail } = require('../utils/emailService');
+const { sendOTPEmail, sendPasswordResetEmail, sendBulkMail } = require('../utils/emailService');
 
 const generateToken = (id) => {
   return jwt.sign({ id }, config.jwtSecret, {
@@ -108,6 +109,7 @@ exports.verifyRegisterOTP = async (req, res) => {
     pendingRegistrations.delete(email);
 
     const token = generateToken(user._id);
+    console.log('verifyRegisterOTP - User created:', user.email, 'Token generated:', token ? 'yes' : 'no');
 
     res.status(201).json({
       success: true,
@@ -118,8 +120,10 @@ exports.verifyRegisterOTP = async (req, res) => {
         email: user.email,
         username: user.username,
         role: user.role,
+        avatar: user.avatar,
         isEmailVerified: user.isEmailVerified,
         isPremium: user.isPremium,
+        premiumExpiryDate: user.premiumExpiryDate,
         memberSince: user.memberSince
       }
     });
@@ -223,8 +227,10 @@ exports.register = async (req, res) => {
         email: user.email,
         username: user.username,
         role: user.role,
+        avatar: user.avatar,
         isEmailVerified: user.isEmailVerified,
         isPremium: user.isPremium,
+        premiumExpiryDate: user.premiumExpiryDate,
         memberSince: user.memberSince
       }
     });
@@ -362,8 +368,10 @@ exports.login = async (req, res) => {
         email: user.email,
         username: user.username,
         role: user.role,
+        avatar: user.avatar,
         isEmailVerified: user.isEmailVerified,
         isPremium: user.isPremium,
+        premiumExpiryDate: user.premiumExpiryDate,
         memberSince: user.memberSince
       }
     });
@@ -378,6 +386,7 @@ exports.login = async (req, res) => {
 
 exports.getMe = async (req, res) => {
   try {
+    console.log('getMe - req.user:', req.user);
     const user = await User.findById(req.user.id);
 
     const portfolio = await Portfolio.findOne({ userId: req.user.id });
@@ -572,22 +581,18 @@ exports.googleAuth = (req, res, next) => {
 
 exports.googleCallback = async (req, res) => {
   try {
-    console.log('Google Callback: req.user:', req.user);
-    console.log('Google Callback: req.query:', req.query);
-    
     if (!req.user) {
-      console.error('Google Callback: No user found after OAuth');
-      return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/login?error=google_auth_failed`);
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+      return res.redirect(`${frontendUrl}/login?error=google_auth_failed`);
     }
     
     const token = generateToken(req.user._id);
-    console.log('Google Callback: Generated token for user:', req.user.email);
-    
-    const redirectUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/auth/callback?token=${token}`;
-    res.redirect(redirectUrl);
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    res.redirect(`${frontendUrl}/auth/callback?token=${token}`);
   } catch (error) {
     console.error('Google callback error:', error);
-    res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/login?error=google_auth_failed`);
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    res.redirect(`${frontendUrl}/login?error=google_auth_failed`);
   }
 };
 
@@ -712,6 +717,156 @@ exports.deleteUser = async (req, res) => {
     });
   } catch (error) {
     console.error('Delete user error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
+  }
+};
+
+exports.sendBulkMail = async (req, res) => {
+  try {
+    const { recipientIds, subject, body, footer, style, templateId, externalEmails } = req.body;
+
+    if (!subject || !body) {
+      return res.status(400).json({
+        success: false,
+        message: 'Subject and body are required'
+      });
+    }
+
+    let users = [];
+    const hasInternalUsers = Array.isArray(recipientIds) && recipientIds.length > 0;
+    const hasExternalEmails = Array.isArray(externalEmails) && externalEmails.length > 0;
+    
+    if (hasInternalUsers) {
+      users = await User.find({ _id: { $in: recipientIds } });
+    } else if (!hasExternalEmails && recipientIds === null) {
+      users = await User.find({ role: { $ne: 'admin' } });
+    } else {
+      users = [];
+    }
+
+    let allRecipients = users.map(u => ({ email: u.email, name: u.name }));
+
+    if (externalEmails && externalEmails.length > 0) {
+      const emailRegex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
+      const validExternalEmails = externalEmails.filter(e => emailRegex.test(e.trim()));
+      validExternalEmails.forEach(email => {
+        if (!allRecipients.find(r => r.email.toLowerCase() === email.toLowerCase())) {
+          allRecipients.push({ email: email.trim(), name: '' });
+        }
+      });
+    }
+
+    if (allRecipients.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'No recipients found'
+      });
+    }
+
+    const recipientEmails = allRecipients.map(r => r.email);
+    const result = await sendBulkMail(recipientEmails, subject, body, footer, style);
+
+    const failedCount = result.results ? result.results.filter(r => r.status === 'failed').length : 0;
+    const overallStatus = failedCount > 0 ? 'failed' : 'sent';
+    const failedEmails = result.results ? result.results.filter(r => r.status === 'failed').map(r => r.email) : [];
+
+    await MailHistory.create({
+      subject,
+      body,
+      footer,
+      style: style || {},
+      templateId: templateId || null,
+      recipientCount: allRecipients.length,
+      recipients: allRecipients,
+      sentBy: req.user.id,
+      status: overallStatus,
+      failedRecipients: failedEmails
+    });
+
+    if (failedCount > 0) {
+      return res.json({
+        success: true,
+        message: `Mail sent. ${failedCount} recipient(s) failed: ${failedEmails.join(', ')}`,
+        recipientCount: allRecipients.length,
+        failedCount,
+        failedEmails
+      });
+    }
+
+    res.json({
+      success: true,
+      message: `Mail sent to ${allRecipients.length} recipients`,
+      recipientCount: allRecipients.length
+    });
+  } catch (error) {
+    console.error('Send bulk mail error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
+  }
+};
+
+exports.getMailHistory = async (req, res) => {
+  try {
+    const { search, status, sort, page = 1, limit = 10 } = req.query;
+    
+    const query = {};
+    
+    if (search) {
+      query.$or = [
+        { subject: { $regex: search, $options: 'i' } },
+        { body: { $regex: search, $options: 'i' } }
+      ];
+    }
+    
+    if (status && status !== 'all') {
+      query.status = status;
+    }
+
+    let sortOption = { createdAt: -1 };
+    if (sort === 'oldest') sortOption = { createdAt: 1 };
+    if (sort === 'subject') sortOption = { subject: 1 };
+    if (sort === 'recipients') sortOption = { recipientCount: -1 };
+
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    
+    const mails = await MailHistory.find(query)
+      .populate('sentBy', 'name email')
+      .sort(sortOption)
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    const total = await MailHistory.countDocuments(query);
+
+    res.json({
+      success: true,
+      mails: mails.map(m => ({
+        id: m._id,
+        subject: m.subject,
+        body: m.body,
+        footer: m.footer,
+        style: m.style,
+        templateId: m.templateId,
+        recipientCount: m.recipientCount,
+        recipients: m.recipients,
+        sentBy: m.sentBy ? { name: m.sentBy.name, email: m.sentBy.email } : null,
+        status: m.status,
+        createdAt: m.createdAt,
+        updatedAt: m.updatedAt
+      })),
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        pages: Math.ceil(total / parseInt(limit))
+      }
+    });
+  } catch (error) {
+    console.error('Get mail history error:', error);
     res.status(500).json({
       success: false,
       message: 'Server error'

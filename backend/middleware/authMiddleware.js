@@ -10,6 +10,8 @@ const protect = async (req, res, next) => {
     token = req.headers.authorization.split(' ')[1];
   }
 
+  console.log('protect middleware - Token received:', token ? 'yes' : 'no');
+
   if (!token) {
     return res.status(401).json({
       success: false,
@@ -19,6 +21,7 @@ const protect = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, config.jwtSecret);
+    console.log('protect middleware - Decoded token:', decoded);
     req.user = await User.findById(decoded.id);
 
     if (!req.user) {

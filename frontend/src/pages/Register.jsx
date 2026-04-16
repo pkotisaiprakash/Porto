@@ -1,9 +1,11 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import useDocumentTitle from '../hooks/useDocumentTitle';
 import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
 
 const Register = () => {
+  const { setUser } = useAuth();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     name: '',
@@ -19,9 +21,16 @@ const Register = () => {
   const navigate = useNavigate();
   const otpInputsRef = useRef([]);
 
-  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+let apiUrl = import.meta.env.VITE_API_URL;
+if (!apiUrl) {
+  apiUrl = import.meta.env.DEV 
+    ? 'http://localhost:5000/api' 
+    : '/api';
+} else if (!apiUrl.endsWith('/api')) {
+  apiUrl = apiUrl.replace(/\/+$/, '') + '/api';
+}
 
-  useDocumentTitle('Register');
+useDocumentTitle('Register');
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -98,9 +107,15 @@ const Register = () => {
         });
 
         if (response.data.success) {
+          const userData = response.data.user;
           localStorage.setItem('token', response.data.token);
-          localStorage.setItem('user', JSON.stringify(response.data.user));
-          navigate('/dashboard');
+          localStorage.setItem('user', JSON.stringify(userData));
+          setUser(userData);
+          
+          // Force a small delay to ensure state is updated
+          setTimeout(() => {
+            navigate('/dashboard');
+          }, 100);
         }
       } catch (err) {
         setError(err.response?.data?.message || 'Invalid or expired OTP');
@@ -368,7 +383,17 @@ return (
               </div>
 
               <div className="mt-3">
-                <button type="button" onClick={() => { const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'; window.location.href = `${apiUrl}/auth/google`; }} className="w-full flex items-center justify-center gap-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 text-sm font-medium py-2 px-4 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
+                <button type="button" onClick={() => {
+                  let apiUrl = import.meta.env.VITE_API_URL;
+                  if (!apiUrl) {
+                    apiUrl = import.meta.env.DEV 
+                      ? 'http://localhost:5000/api' 
+                      : '/api';
+                  } else if (!apiUrl.endsWith('/api')) {
+                    apiUrl = apiUrl.replace(/\/+$/, '') + '/api';
+                  }
+                  window.location.href = `${apiUrl}/auth/google`;
+                }} className="w-full flex items-center justify-center gap-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 text-sm font-medium py-2 px-4 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
                   <svg className="w-5 h-5" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                     <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>

@@ -304,7 +304,14 @@ const Login = () => {
             <button
               type="button"
               onClick={() => {
-                const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+                let apiUrl = import.meta.env.VITE_API_URL;
+                if (!apiUrl) {
+                  apiUrl = import.meta.env.DEV 
+                    ? 'http://localhost:5000/api' 
+                    : '/api';
+                } else if (!apiUrl.endsWith('/api')) {
+                  apiUrl = apiUrl.replace(/\/+$/, '') + '/api';
+                }
                 window.location.href = `${apiUrl}/auth/google`;
               }}
               className="w-full flex items-center justify-center gap-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 font-medium py-3 px-4 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"

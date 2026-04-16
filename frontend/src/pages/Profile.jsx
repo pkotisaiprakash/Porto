@@ -82,15 +82,18 @@ const Profile = () => {
 
   const handleAvatarSave = async () => {
     setAvatarLoading(true);
+    setMessage({ type: '', text: '' });
     try {
       const response = await authAPI.updateAvatar(avatarUrl);
       if (response.data.success) {
         updateUser(response.data.user);
         setShowAvatarInput(false);
         setAvatarUrl('');
+        setMessage({ type: 'success', text: 'Avatar updated successfully!' });
       }
     } catch (err) {
-      console.error('Error updating avatar:', err);
+      const errorMsg = err.response?.data?.message || 'Failed to update avatar';
+      setMessage({ type: 'error', text: errorMsg });
     } finally {
       setAvatarLoading(false);
     }
@@ -127,7 +130,7 @@ const Profile = () => {
           <form onSubmit={handleSubmit}>
             {/* Avatar Display */}
             <div className="flex items-center mb-6">
-              {user?.avatar ? (
+              {user?.avatar && user.avatar.trim() ? (
                 <img 
                   src={user.avatar} 
                   alt={user.name} 

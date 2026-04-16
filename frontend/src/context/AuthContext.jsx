@@ -22,13 +22,24 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuth = async () => {
     const token = localStorage.getItem('token');
-    if (token) {
+    const localUser = localStorage.getItem('user');
+    
+    if (token && localUser) {
       try {
         const response = await authAPI.getMe();
         setUser(response.data.user);
       } catch (err) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        // If API fails but we have local user data, use it
+        try {
+          const parsedUser = JSON.parse(localUser);
+          if (parsedUser && parsedUser.id) {
+            setUser(parsedUser);
+          }
+        } catch (e) {
+          // Invalid localStorage data, clear it
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+        }
       }
     }
     setLoading(false);
@@ -88,6 +99,7 @@ export const AuthProvider = ({ children }) => {
 
   const value = {
     user,
+    setUser,
     loading,
     error,
     register,

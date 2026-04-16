@@ -18,8 +18,11 @@ const {
   verifyRegisterOTP,
   getAllUsers,
   updateUser,
-  deleteUser
+  deleteUser,
+  sendBulkMail,
+  getMailHistory
 } = require('../controllers/authController');
+const { getAllMailTemplates } = require('../utils/emailService');
 const { protect, admin } = require('../middleware/authMiddleware');
 
 router.post('/register', register);
@@ -42,5 +45,10 @@ router.get('/google/callback', passport.authenticate('google', { failureRedirect
 router.get('/users', protect, admin, getAllUsers);
 router.put('/users/:userId', protect, admin, updateUser);
 router.delete('/users/:userId', protect, admin, deleteUser);
+router.post('/send-bulk-mail', protect, admin, sendBulkMail);
+router.get('/mail-history', protect, admin, getMailHistory);
+router.get('/mail-templates', protect, admin, (req, res) => {
+  res.json({ success: true, templates: getAllMailTemplates() });
+});
 
 module.exports = router;

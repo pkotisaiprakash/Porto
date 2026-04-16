@@ -1,11 +1,16 @@
 import axios from 'axios';
 
-let API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-if (!API_URL.endsWith('/api')) {
+let API_URL = import.meta.env.VITE_API_URL;
+
+if (!API_URL) {
+  if (import.meta.env.DEV) {
+    API_URL = 'http://localhost:5000/api';
+  } else {
+    API_URL = '/api';
+  }
+} else if (!API_URL.endsWith('/api')) {
   API_URL = API_URL.replace(/\/+$/, '') + '/api';
 }
-
-console.log('API URL:', API_URL);
 
 const api = axios.create({
   baseURL: API_URL,
@@ -68,12 +73,15 @@ export const authAPI = {
   resetPassword: (resetToken, password) => api.post(`/auth/reset-password/${resetToken}`, { password }),
   purchasePremium: (paymentId, plan = 'monthly') => api.post('/auth/purchase-premium', { paymentId, plan, amount: plan === 'yearly' ? 99 : 9 }),
   updateProfile: (data) => api.put('/auth/update-profile', data),
-  updateAvatar: (avatarUrl) => api.put('/auth/update-avatar', { avatar: avatarUrl }),
+  updateAvatar: (avatarUrl) => api.put('/auth/update-profile', { avatar: avatarUrl }),
   sendOTP: (email) => api.post('/auth/send-otp', email),
   verifyOTP: (email, otp) => api.post('/auth/verify-otp', { email, otp }),
   getAllUsers: () => api.get('/auth/users'),
   updateUser: (userId, data) => api.put(`/auth/users/${userId}`, data),
   deleteUser: (userId) => api.delete(`/auth/users/${userId}`),
+  sendBulkMail: (data) => api.post('/auth/send-bulk-mail', data),
+  getMailHistory: (params) => api.get('/auth/mail-history', { params }),
+  getMailTemplates: () => api.get('/auth/mail-templates'),
   handleGoogleCallback: (token) => {
     localStorage.setItem('token', token);
     return Promise.resolve({ data: { success: true } });
