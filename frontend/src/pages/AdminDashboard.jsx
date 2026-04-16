@@ -1084,9 +1084,6 @@ export default Template;`;
                             {mail.failedRecipients?.length > 0 && (
                               <span className="text-red-400 block mt-1">Failed: {mail.failedRecipients.join(', ')}</span>
                             )}
-                            {mail.status === 'sent' && (
-                              <span className="text-yellow-400 block mt-1 text-xs">Check email for bounces</span>
-                            )}
                           </td>
                           <td className="px-6 py-4 text-gray-400">{mail.sentBy?.name || 'Admin'}</td>
                           <td className="px-6 py-4 text-gray-400 text-sm">{formatDate(mail.createdAt)}</td>
