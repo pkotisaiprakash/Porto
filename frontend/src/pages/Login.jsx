@@ -178,6 +178,25 @@ const Login = () => {
         </div>
 
         <div className="bg-gray-800 rounded-2xl shadow-xl p-6 lg:p-8 border border-gray-700">
+          <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 px-4 py-3 rounded-lg text-sm mb-6">
+            <strong>Email service is temporarily unavailable.</strong> Please use Google Sign-in to access your account.
+            {/* <button
+              type="button"
+              onClick={() => {
+                let apiUrl = import.meta.env.VITE_API_URL;
+                if (!apiUrl) {
+                  apiUrl = import.meta.env.DEV ? 'http://localhost:5000/api' : '/api';
+                } else if (!apiUrl.endsWith('/api')) {
+                  apiUrl = apiUrl.replace(/\/+$/, '') + '/api';
+                }
+                window.location.href = `${apiUrl}/auth/google`;
+              }}
+              className="underline font-medium hover:text-blue-800 dark:hover:text-blue-200"
+            >
+              Google Sign-in
+            </button>{' '}
+            to access your account. */}
+          </div>
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
               <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-lg text-sm">

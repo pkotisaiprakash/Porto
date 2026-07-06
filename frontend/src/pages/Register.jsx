@@ -83,44 +83,16 @@ useDocumentTitle('Register');
 
     if (step === 1) {
       setLoading(true);
-      try {
-        await axios.post(`${apiUrl}/auth/register/send-otp`, { email: formData.email });
-        setStep(2);
-      } catch (err) {
-        setError(err.response?.data?.message || 'Failed to send OTP');
-      }
+      setError('Email registration is temporarily unavailable. Please use Google Sign-up.');
       setLoading(false);
+      return;
     } else {
       if (formData.otp.length !== 6) {
         setError('Please enter the complete 6-digit OTP');
         return;
       }
-      setLoading(true);
-      try {
-        const username = formData.name.replace(/\s+/g, '').toLowerCase();
-        const response = await axios.post(`${apiUrl}/auth/register/verify`, {
-          email: formData.email,
-          otp: formData.otp,
-          name: formData.name,
-          username: username,
-          password: formData.password
-        });
-
-        if (response.data.success) {
-          const userData = response.data.user;
-          localStorage.setItem('token', response.data.token);
-          localStorage.setItem('user', JSON.stringify(userData));
-          setUser(userData);
-          
-          // Force a small delay to ensure state is updated
-          setTimeout(() => {
-            navigate('/dashboard');
-          }, 100);
-        }
-      } catch (err) {
-        setError(err.response?.data?.message || 'Invalid or expired OTP');
-      }
-      setLoading(false);
+      setError('Email verification is temporarily unavailable. Please use Google Sign-up.');
+      return;
     }
   };
 
@@ -255,6 +227,25 @@ return (
         </div>
 
         <div className="bg-white m-4 dark:bg-gray-800 rounded-2xl shadow-xl p-3 lg:p-4 border border-gray-200 dark:border-gray-700">
+          <div className="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 text-yellow-700 dark:text-yellow-300 px-4 py-3 rounded-lg text-sm mb-4">
+            <strong>Email service is temporarily unavailable.</strong> Registration via email is currently disabled. Please use Google Sign-up to create an account.
+            {/* <button
+              type="button"
+              onClick={() => {
+                let apiUrl = import.meta.env.VITE_API_URL;
+                if (!apiUrl) {
+                  apiUrl = import.meta.env.DEV ? 'http://localhost:5000/api' : '/api';
+                } else if (!apiUrl.endsWith('/api')) {
+                  apiUrl = apiUrl.replace(/\/+$/, '') + '/api';
+                }
+                window.location.href = `${apiUrl}/auth/google`;
+              }}
+              className="underline font-medium hover:text-yellow-800 dark:hover:text-yellow-200"
+            >
+              Google Sign-up
+            </button>{' '} */}
+            
+          </div>
           <form onSubmit={handleSubmit} className="space-y-2 lg:space-y-3">
             {error && (
               <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-lg text-sm">
